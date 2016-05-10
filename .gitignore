@@ -1,0 +1,5 @@
+node_modules/*
+!node_modules/clicksend
+!node_modules/shiftswap
+node_modules/shiftswap/apikey.txt
+dist

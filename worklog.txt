@@ -1,0 +1,284 @@
+[Josh @ 2016-05-09 01:58:22] 
+
+TODO: Move api-key and username to separate file.
+	  This will prevent the private keys from appearing in GitHub searches.
+
+[Josh @ 2016-05-08 15:32:45] 
+
+SMS work in apiserver.js
+Sent a text message from Node.js
+Added clicksend-and-node.html
+
+
+ClickSend had their own SDK and thank god for that.  I could never figure out how to structure a request.  Still... there's next to zero documentation I can find online for it, so it's going to take a lot of playing-around-with to get working.
+
+Also I was going to expose my API key on the front-end.  Bad idea!  There's a history command that can be used to grab all the SMS's ever sent using that key.
+
+
+
+
+[Josh @ 2016-05-06 03:42:35] 
+
+Reworked Directory map on develop.html
+TODO: manager smart times, type in military time or have it automatically know AM or PM by context.
+
+Done with a recursive algorithm and it is lovely.  This replaces the nasty html I had before that looked something like this:
+	<div><p><a>/root</a></p>
+		<div><p><a>/dev</a> <small>website in readable format, make code edits here</small></p>
+		<div><p><a>/fonts</p<a></p>
+		</div>
+		<div><p><a>/img</a></p>
+		</div>
+
+The data is now in json.  Still not as pretty as I'd like it to be, but it's a huge improvement.
+
+
+[Josh @ 2016-05-05 03:32:09] 
+
+Minor update to develop.html
+
+Been busy with work and finals, not many updates sorry.
+
+
+[Josh @ 2016-05-02 21:25:46] 
+
+Added robots.txt
+
+This will prevent bots from accessing the entire website.  Unfortunately it also stops the page from appearing on google.  Not sure if this is the best approach.  I do need some way to prevent the schedule from being crawled.
+
+
+[Josh @ 2016-05-01 11:49:53] 
+
+Added policy.html (private policy)
+
+
+
+[Josh @ 2016-04-30 16:09:46] 
+
+TODO: opt-out function
+
+"Are you sure" type confirmation.
+Also have it return back once it is done cleaning.
+
+TODO: bar management shifts from the floor schedule.
+
+When a floor employee is promoted to management someone will additionally have to promote them within shiftswap.  Until then, their schedule will be displayed along with the floor employees.  So prevent any management shifts from appearing within the floor schedule.  This will have to be done from the server end.
+
+
+[Josh @ 2016-04-29 23:45:16] 
+
+Beginning of refactoring to controllers
+Added dataService
+Added ajaxService
+
+TODO: move timeFormat up to the directive as array
+      parse array with ng-repeat
+
+Aliasing.
+ng-controller="scheduleTable as table"
+
+
+http://campus.codeschool.com/courses/shaping-up-with-angular-js/level/1/section/2/video/1
+
+
+
+[Josh @ 2016-04-29 08:46:37] .............................................. 
+
+TODO: big changes to controllers and services.
+
+So the schedule table was working great.  But when I added a second directive to the app everything broke.  Turns out Angular is very restrictive on how scope gets handled.  A module can have multiple directives, but they must operate on their own scopes. [1]
+
+Digging deeper.  I need to be able to manipulate the same data on two directives.  If directives cannot share the same scope, I can't access the same data right?  Well, this is where Angular's MVC schema comes in:
+	Service -    Handles ALL the underlying data.
+	Controller - Business logic.  Gets and sets the data from service.
+	Directive -  Presentation logic.  Filters, format, DOM manipulation.
+More about this here. [2]
+
+My problem was I was doing everything at the controller level.  I'll need to move the lists into a service, and break up the controller into smaller controllers.
+
+
+[1] http://bit.ly/1rEQYec
+[2] https://docs.angularjs.org/guide/controller
+
+
+
+[Josh @ 2016-04-28 23:26:21] .............................................. 
+
+Updates to schedule
+Updates to data
+Changes to data structure
+
+I completely restructured the way data is stored and it finally makes sense.  After doing so, it made rendering the schedule a breeze.  I'm back with Angular and coding the front-end.
+
+	userInfos[userid] => {info}
+
+	userData[userid]  => {days}
+	userData[userid][unixstamp] => {scheduleData}
+
+	days[unixstamp] => {scheduleDay}
+	days[unixstamp][userid] => {scheduleData}
+
+	render[userid, userid, userid, userid]
+
+Note: this duplicates schedule data.  UserData stores it by user.  Days stores it by day.  The whole point of this was making it easier to access.  Because of this, if the list ever starts getting too big it could slow down the web browser.
+
+
+[Josh @ 2016-04-26 19:42:00] .............................................. 
+
+Minor fixes to Gulpfile and styling
+Bug in IE Edge with for..of
+
+IE Edge is still incompatible with ES6, specifically in this case "for..of" loops:
+
+	for(var foo of bar)
+
+IE Edge sees that a semicolon is missing between "foo" and "of".  I tried fixing this in three ways: a polyfill, Modernizr, and Babel.  None of which seemed to do the trick.  It appears if I really need this to be cross-compatible I have to watch out for ES6.  And as much as I'd like to drop IE, I can't.  All the computers in the manager's office are running IE.  Additionally as of December 2015, 10% of users run IE.  Right now I have to go through my code and be sure to use all the older standards.
+
+
+
+[Josh @ 2016-04-25 08:42:20] .............................................. 
+
+Added gulp live reload
+Progress on Angular
+
+The page now automatically updates immediately after saving it within the text editor.  This should speed up my workflow.  
+Livereload works by:
+1. The browser has an extension which listens to a local port.
+2. Gulp.watch will watch for changes to given files.  If changes are made it will run ['precondition'] tasks.
+3. 'Precondition' does its usual, but afterwards pipe to the livereload.  This is how we know when the task is finished and the pipe will also update the port.
+4. The web browser listener sees the change from the local port and it refreshes the page.
+
+
+[Josh @ 2016-04-24 02:58:36] .............................................. 
+
+Learning a bit about Angular
+
+I'm using Angular's phonecat tutorial and following through.  It's more concise than what I saw at Treehouse.  Angular should be my primary focus right now considering how much the front-end is lacking.  However, not much of it is making sense right now due to a lack of sleep and fresh air.  I'll look more into it in the morning.
+
+https://docs.angularjs.org/tutorial
+
+
+
+[Josh @ 2016-04-23 03:54:39] .............................................. 
+
+Finished Gulpfile
+
+Gulp can now build the entire website with one command.
+
+Minifying JS needs some work, but I've given up on it for now.  It required transcripting ES6 to ES5 and I ended up running through ten different modules, none of which I could get to work with me.  Again, at least the Gulp build is working.
+
+TODO: Gulp Live Reload and JS minifier.
+
+
+[Josh @ 2016-04-22 20:11:42 ..............................................]
+
+Minified CSS to dist folder.
+
+
+[Josh @ 2016-04-21 23:32:10 ..............................................]
+
+Reorganizing HTML files
+Learned about Nunjucks
+
+I rewrote all my HTML files using templating with Gulp and Nunjucks.  It has made my HTML much cleaner, and has even fixed my SSI problem.  I will now be able to view the webpage without Apache since the pages get compiled ahead of time.
+
+Heads up though, Angular doesn't play nice with Nunjucks.  Angular uses {{}} tags for templating.  Nunjucks uses {% %} and gets confused by Angular.  You have to tell Nunjucks to read a block as raw. {% raw %}{% endraw %}.  This will ignore any templates it sees inside.
+
+
+
+[Josh @ 2016-04-20 08:11:15] .............................................. 
+
+Reorganized folder structure into /dev, /dist, and /node.
+Fixed broken header/footer SSI
+
+Dev is the development copy of the website.  Dist is a compressed version of the site meant for distribution or production.  Node contains various node.js server apps such as the API backend and Gulp.  I broke these up because I plan on using Gulp to help build the site.
+
+Broken header footer SSIs.  So the pathnames for SSIs are in relation to the home directory.  It has nothing to do with the html files that are using them.  Originally /template would return the header footers.  Because I moved the entire project into /dev, now I have to use /dev/template.
+
+
+
+[Josh @ 2016-04-18 21:21:02] .............................................. 
+
+Added a favicon
+
+Learning about Gulp
+
+
+
+[Josh @ 2016-04-17 15:28:35] .............................................. 
+
+Fixed API sends back json responses as default
+
+http://stackoverflow.com/questions/6661151/in-node-js-express-how-do-i-automatically-add-this-header-to-every-render-res
+
+
+[Josh @ 2016-04-17 04:54:44] .............................................. 
+
+Learned Jade
+
+Jade makes generating HTML markup a lot easier and it's super quick to learn.  Although I'll be using my sever side for the API only.  Jade might be useful for something else in the future.
+
+
+
+[Josh @ 2016-04-16 04:00:14] .............................................. 
+
+Fixed mock data.
+Fixed/partial loading mock data.
+
+When using a "for a of b" loop, remember that a is its own object separate from b.  My mistake was thinking it was similar to a "for a in b" loop where a is an index of a particular object within b.
+
+
+
+[Josh @ 2016-04-14 21:39:40 ..............................................]
+
+Added users.json (complete)
+Added mock data.
+TODO: header / footer must be done differently.
+
+I spent the better part of the day creating mock data for the scheduler.  I had lots of trouble getting Angular to agree with me.  I thought I knew what ng-bind did, but apparently not.  
+
+On the brightside, I now have a complete user list that dates back 13 months.  I also am getting a good warm-up on my javascript just creating little apps here and there for small things.
+
+I ran the webpage on the computers at work and it didn't go so well.  All the computers use IE and it breaks the page - the headers and footers are missing.  I wasn't so concerned about backwards compatibility until now.  I can't rely on Javascript or the client to do too much lifting.  To fix the header/footers I need to use SSI or build the pages with Gulp.
+
+
+[Josh @ 2016-04-13 03:42:28 ..............................................]
+
+Sent first round trip SMS text with ClickSend.
+
+Although, I used a simpler API version which worked with POST responses.  So simple it could be constructed with a pure HTML form.  Doing this in Node will be entirely different.  This did prove that ClickSend works (or it was easy enough that a dummy like me could use it - same outcome).  The documentation is solid, the dashboard is intuitive.  I'm liking it so far.
+
+
+[Josh @ 2016-04-12 07:32:40 ..............................................]
+
+Added header and footer to every page using Angular Templates.  
+
+If javascript becomes an issue, this can be done from the server using Apache's Server Side Includes (SSI). However, this will not appear if run locally.
+	https://httpd.apache.org/docs/current/howto/ssi.html
+
+Name idea:  Hypnos the god of sleep and laziness.
+            Versus the scheduling app Chronos - the god of time.
+
+
+
+[Josh @ 2016-04-11 16:35:05 ..............................................]
+
+Added costs.html
+	Shows prices of everything and will show incurred amounts each month.
+
+
+
+[Josh @ 2016-04-10 23:57:02 ..............................................]
+
+
+via api.html, api.js
+
+	Began adding tons of new routes.  Get user by name, get new trades, get pending trades, etc.  But this will put a lot of strain on the server that I don't necessarily need.  I decided to go against this.  API calls should be only for minimal organization, privacy, and big data.  This means:
+
+	1. Don't make tons of calls to get a user by their name.
+	   However, a user's whole schedule is acceptable.
+
+	2. Don't send the manager schedule to regular employees.
+	   This needs to be hidden by the API.
+
+

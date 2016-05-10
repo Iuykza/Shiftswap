@@ -1,0 +1,140 @@
+{% extends "template/standard.html" %}
+
+{% block title %}Develop{% endblock %}
+{% set movie = true %}
+
+{% block head %}
+	<link rel="stylesheet" href="css/develop.css">
+{% endblock %}
+{% block content %}
+	<section id="main-content">
+		<section class="container">
+			<h1>Developers <small>Getting Started</small></h1>
+			<p>Want to help build Shiftswap or use the code in your own project?  That's great.  Shiftswap is free to use.  But before you begin there's a couple of things you'll need to know.</p>
+			<p>Shiftswap is served in two parts:  a front-end and a back-end server.  Both use Javascript and run  independently.  The front-end is made of static html files and is shaped through Angular.  To get schedule data it makes ajax requests to the back-end.  The back-end server acts solely as an API whose main purpose is to send schedule and user data.  The back-end is written in Node.js with Express.</p>
+		</section>
+
+		<section class="container">
+			<h2>Requirements</h2>
+
+			<p>Things you'll <em>need</em> to know:</p>
+			<ul>
+				<li>Basic HTML, CSS, and Javascript</li>
+				<li>Node.js</li>
+				<li>Angular</li>
+			</ul>
+
+			<p>Things that are <em>nice</em> to know:</p>
+			<ul>
+				<li>GitHub</li>
+				<li>Gulp</li>
+				<li>Express</li>
+				<li>MangoDB <small>NoSQL database</small></li>
+				<li>Nunjucks <small>templating engine</small></li>
+			</ul>
+
+			<h3>Setting up</h3>
+			<p>Before building the website you'll need your development environment set up - stuff installed on your computer.  Most web developers can skip over this.</p>
+			<ol>
+				<li>Install <a href="https://desktop.github.com">GitHub</a></li>
+				<li>Install <a href="https://nodejs.org/en/">node.js</a></li>
+				<li>Install the <a href="http://livereload.com/extensions/">livereload</a> browser extension</li>
+				<li>
+					<div>Install a web host (or use your own), for http-server run:</div>
+					<code>npm install http-server -g</code>
+				</li>
+
+			</ol>
+		</section>
+
+
+		<section class="container">
+			<h2>Building</h2>
+			
+			<p>So you have experience with Angular and Node, and you set up your computer for a development environment? Then you're ready to build a production copy of the website.</p>
+
+			<ol id="build-list">
+				<li>
+					<div>Download the source from GitHub</div>
+					<code>git clone http://github.com/niyok/shiftswap</code>
+				</li>
+				<li>
+					<div>Install node modules</div>
+					<code>npm install</code>
+				</li>
+				<li>
+					<div>Build the site</div>
+					<code>gulp</code>
+				</li>
+				<li>
+					<div>Run the backend server</div>
+					<code>node apiserver.js</code>
+				</li>
+				<li>
+					<div>Run the frontend server</div>
+					<code>http-server</code>
+				</li>
+			</ol>
+
+			<p>All done.  Fire up your web browser and navigate to <code>http://localhost:8080</code> to test it out.</p>
+			<h3>Build commands in Gulp</h3>
+			<dl>
+				<dt>gulp</dt>
+				<dd>Builds a production copy of the site (compiled and minified.)</dd>
+
+				<dt>gulp watch</dt>
+				<dd>Watches most development files for changes and will automatically compile and reload your web browser.</dd>
+
+				<dt>gulp clean</dt>
+				<dd>Deletes the dist folder.</dd>
+			</dl>
+		</section>
+
+		<section class="container">
+			<h2>Directory map</h2>
+
+			<div id="directory-map">
+
+				<!--html is about to get nasty here, glad this is done in Nunjucks. -->
+				{% macro folder(name, description, children) %}
+					{% if children %}
+						<div><p><a>{{name}}</a>{%if description %}<small>{{description}}</small>{% endif %}</p>
+						{{next(children)}}
+						</div>
+					{% else %}
+						<span><a>{{name}}</a> <small>{{description}}</small></span>
+					{% endif %}
+				{% endmacro %}
+
+				{% macro next(children)%}
+					{% for obj in children %}
+						{{folder(obj.n, obj.d, obj.c)}}
+					{% endfor %}
+				{% endmacro %}
+
+				{{next(develop)}}
+			</div>
+			<dl>
+				<dt>Dev and Dist</dt>
+				<dd>Dev contains the developer copy of the website.  Dist is the distributed version which is compiled and minified.</dd>
+
+				<dt>gulpfile.js</dt>
+				<dd>Gulp, a Javascript </dd>
+
+				<dt>angularapp.js</dt>
+				<dd></dd>
+
+
+				<dt>apiserver.js and routes.js</dt>
+				<dd></dd>
+			</dl>
+		</section>
+
+		
+	</section>
+{% endblock %}
+
+{% block script %}
+	
+{% endblock %}
+
