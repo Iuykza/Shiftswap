@@ -1,5 +1,11 @@
+dist
+
 node_modules/*
 !node_modules/clicksend
+
 !node_modules/shiftswap
 node_modules/shiftswap/apikey.txt
-dist
+node_modules/shiftswap/mock/users.json
+node_modules/shiftswap/mock/*.txtz
+
+ftpsync.settings

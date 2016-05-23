@@ -1,3 +1,76 @@
+[Josh @ 2016-05-18 05:28:28] 
+
+Created Schedule-by-day
+Fixed the button switching between month, week, day
+Progress on welcomeinfo
+
+
+[Josh @ 2016-05-17 15:11:38] 
+
+Fixing things again with $q.defer()
+
+
+[Josh @ 2016-05-16 04:19:39] 
+
+Mother of god it works.
+
+
+[Josh @ 2016-05-14 14:51:53] 
+
+Dependencies!  I was getting ready to make every call a function that returns a promise. That would have been a nasty bugger.  Instead I found a solution to send async data across multiple controllers using built-in angular factories and $q.
+
+http://embed.plnkr.co/FeHc7u/
+
+[Josh @ 2016-05-12 17:39:27] 
+
+Renamed dev folder to src
+
+
+
+[Josh @ 2016-05-11 02:16:55]
+
+More refactoring angularapp.js
+Broke everything
+
+Still moving things around.  Still battling scope and dependencies. I now know $scope refers to where templates have access to.
+
+Dependencies... eh.  I need a way to load the user list once so it can be read by two controllers.  But there's no clean way to do it.
+
+Right now I have:
+	Angular start -> ajaxService -> do stuff -> crash
+	                            \------------------------> ajaxFinish
+
+I need:
+	Angular start -> ajaxService -> ajaxFinish -> do stuff
+
+
+I can't because I have them separated into different controllers, and I don't know how to change when the controllers fire.
+
+TODO: look into $q
+
+
+[Josh @ 2016-05-10 21:39:23] 
+
+Changes to welcomeinfo.html
+Refactored angularapp.js
+	Moved items from controller to service level.
+
+Order matters when it comes to dependency.  This works:
+
+	.controller('controlwelcome', ['dataService', '$scope', function(dataService, $scope){
+
+	}]);
+
+This doesn't:
+	
+	.controller('controlwelcome', ['dataService', '$scope', function($scope, dataService){
+
+	}]);
+
+Well it might, but the variables will be stored to the wrong scope.  Had to deal with a ton of scope debugging before I figured this one out.  
+
+
+
 [Josh @ 2016-05-09 01:58:22] 
 
 TODO: Move api-key and username to separate file.

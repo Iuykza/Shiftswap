@@ -20,14 +20,14 @@ var gulp     = require('gulp'),
 	del      = require('del'),
 	colors = require('colors');
 
-var dev    = './dev/',
+var dev    = './src/',
 	dist   = './dist/';
 
 var nunjuckData = {
 	'a': [1,2,3],
 	'develop': [
 		{'n':'/root', 'c':[
-			{'n':'/dev', 'd':'website in readable format, make code edits here', 'c':[
+			{'n':'/src', 'd':'website in readable format, make code edits here', 'c':[
 				{'n':'/fonts', 'd':'', 'c':[]},
 				{'n':'/img', 'd':'', 'c':[]},
 				{'n':'/css', 'd':'', 'c':[
@@ -44,7 +44,7 @@ var nunjuckData = {
 					{'n':'table.html', 'd':'schedule table on the home page'},
 				]},
 			]},
-			{'n':'/dist', 'd':'website cloned from /dev, compiled, and minified, open web browser here', 'c':[]},
+			{'n':'/dist', 'd':'website cloned from /src, compiled, and minified, open web browser here', 'c':[]},
 			{'n':'/node_modules', 'd':'', 'c':[]},
 			{'n':'/template', 'd':'nunjuck templates used during compile', 'c':[
 				{'n':'standard.html', 'd':'template that describes basic layout of all pages'},
@@ -112,10 +112,9 @@ gulp.task('concat', function(){
 	/*** Concats Angular JS files together to reduce server calls. ***/
 
 	return gulp.src([
-		dev+'js/_service-ajax.js',
-		dev+'js/_service-data.js',
-		dev+'js/_directive-schedule.js',
-		dev+'js/_controller-main.js',
+		dev+'js/_service-*.js',
+		dev+'js/_directive-*.js',
+		dev+'js/_controller-*.js',
 	]).pipe(concat('scheduleapp.js'))
 	//.pipe(babel())
 	.pipe(gulp.dest(dist+'js'))

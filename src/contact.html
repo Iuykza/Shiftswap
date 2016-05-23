@@ -1,0 +1,31 @@
+{% extends "template/standard.html" %}
+
+{% block title %}Contact{% endblock %}
+
+{% block head %}
+	
+{% endblock %}
+{% block content %}
+	<section class="container">
+		<h1>Contact me</h1>
+		<p>Problem with the site?  Have an idea?  Do you work for student loans and have been sent to get me?  Say no more fam.  Type something in the white box below!</p>
+
+
+		<form action="https://api-mapper.clicksend.com/http/v2/send.php" method="POST">
+		
+
+			<input type="hidden" name="username" value="Divyk"><br>
+			<input type="hidden" name="key"      value="B73646DE-1BB1-2A54-697A-8023864313F5"><br>
+			<input type="text" name="to" placeholder="To"><br>
+
+			<textarea name="message" style="width:90%; height: 300px;"></textarea>
+			<button>Send</button>
+		</form>
+
+	</section>
+{% endblock %}
+
+{% block script %}
+	
+{% endblock %}
+
