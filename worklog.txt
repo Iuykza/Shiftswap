@@ -1,3 +1,70 @@
+[Josh @ 2016-05-23 16:53:04]
+
+Forwarded back-end to DNS:   api.shiftswapsanity.xyz
+Set up back-end on AWS
+Installed pm2
+
+Had to forward the port as well.  This way you don't have to type api.shiftswapsanity.xyz:3000.  
+
+Tried SRV records with the DNS with no luck.  Instead I forwarded at the server end.  The back-end still runs on 3000 as node convention.  I used libcap to forward port 80 traffic to 3000.
+
+Also installed pm2.  It's similar to nodemon.  It restarts node apps if they crash, saves crash data to logs, and provides monitoring tools.
+
+http://stackoverflow.com/a/23281904
+https://github.com/Unitech/pm2
+
+
+
+[Josh @ 2016-05-21 15:32:19] 
+
+Forwarded front-end to DNS:  shiftswapsanity.xyz
+Set up front-end on gitpages
+
+Spent at least three hours playing with the DNS settings not knowing why it wouldn't work before realizing it takes "up to a day" for it to take effect.  Woke up to see it working.  
+
+https://www.namecheap.com/support/knowledgebase/article.aspx/9645/2208/how-do-i-link-my-domain-to-github-pages
+http://stackoverflow.com/a/23375423
+
+
+
+
+[Josh @ 2016-05-20 23:01:40] 
+
+Progress setting up back-end on AWS.
+
+Lots of linux terminal knowledge needed here.  I'm pretty rusty at it.  Good commands to know:
+
+	Directories
+		/home/         home directory
+		/etc/rc.local  file with commands that runs at boot
+
+	Files
+		ls            shows directory contents
+		pwd           current directory
+		cd            change  directory
+		mkdir         make    directory
+		rm -r         delete  directory
+		rm            delete  file
+		cp            copy    file
+
+	Install
+		yum           package manager
+		yum install   install package
+		yum search    find package fuzzysearch
+
+
+	Processes
+		top           process list
+		top | grep    get process that matches particular name
+
+	Other
+		pm2           node process manager
+		grep          pattern searcher with highlighting
+
+
+
+
+
 [Josh @ 2016-05-18 05:28:28] 
 
 Created Schedule-by-day
