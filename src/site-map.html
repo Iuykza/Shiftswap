@@ -3,53 +3,96 @@
 {% block title %}Sitemap{% endblock %}
 
 {% block head %}
-	
+	<link rel="stylesheet" href="css/site-map.css">
 {% endblock %}
 {% block content %}
 	<section class="container">
 		<h1>Sitemap</h1>
+		<div id="sort-by">
+			<ol class="nav nav-pills">
+			<li><a href="">Sort by:</a></li>
+				<li role="presentation" ng-class="{active: timespan==1}" ng-click="timespan=1"><a href>
+				Category
+				</a></li>
+				<li role="presentation" ng-class="{active: timespan==2}" ng-click="timespan=2"><a href>
+				A to Z
+				</a></li>
+			</ol>
+		</div>
 
-		<h2>Schedule</h2>
-		<a href="index.html">Home</a>
-		What's this? (how Shiftswap works)
-		Statistics
-		Tour
-		
-		<h2>Forms</h2>
-		Sign-up (new user)
-		Change user info
-		Change password
-		Change user info - statistics
 
-
-		<h2>More Pages</h2>
-		News
-		Starbucks
-		Movies
-
-		<h2>Website</h2>
-			About
-			Costs
-			Contact
-			Announcement
-
-		<h2>Developers</h2>
-		(Developer's) getting started
-		API
-		GitHub
-		Changelog
-		UX
-
-		<h2>Legal</h2>
-		Private policy
-		Content use
-
-		<h2>Panel</h2>
-		Manager panel
-		Admin panel
-
-		<h2>Misc</h2>
-		robots.txt
+		<div class="row">
+			<div class="col-sm-3">
+				<h2>Schedule</h2>
+				<ul>
+					<li><a href="index.html">Home</a></li>
+					<li><a href="whats-this.html">What's this? (how Shiftswap works)</a></li>
+					<li><a href="stats.html">Statistics</a></li>
+					<li><a href="">Tour</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-3">
+				<h2>Forms</h2>
+				<ul>
+					<li><a href="sign-up.html">Sign-up (new user)</a></li>
+					<li><a href="">Change user settings</a></li>
+					<li><a href="stats-form.html">Change user info - statistics</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-3">
+				<h2>Panel</h2>
+				<ul>
+					<li><a href="">Manager panel</a></li>
+					<li><a href="">Admin panel</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-3">
+				<h2>More Pages</h2>
+				<ul>
+					<li><a href="news.html">News</a></li>
+					<li><a href="starbucks.html">Starbucks</a></li>
+					<li><a href="movies.html">Movies</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-3">
+				<h2>Website</h2>
+				<ul>
+					<li><a href="site-map.html">Site map</a></li>
+					<li><a href="about.html">About</a></li>
+					<li><a href="costs.html">Costs</a></li>
+					<li><a href="contact.html">Contact</a></li>
+					<li><a href="">Announcement</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-3">
+				<h2>Developers</h2>
+				<ul>
+					<li><a href="develop.html">(Developer's) getting started</a></li>
+					<li><a href="api.html">API</a></li>
+					<li><a href="">GitHub</a></li>
+					<li><a href="">Changelog</a></li>
+					<li><a href="">UX</a></li>
+					<li><a href="clicksend-api-and-node.html">Clicksend API and node.js</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-3">
+				<h2>Legal</h2>
+				<ul>
+					<li><a href="policy.html">Private policy</a></li>
+					<li><a href="">Content use</a></li>
+				</ul>
+			</div>
+			<div class="col-sm-3">
+				<h2>Misc</h2>
+				<ul>
+					<li><a href="robots.txt">robots.txt</a></li>
+				</ul>
+			</div>
+		</div>
 
 
 		

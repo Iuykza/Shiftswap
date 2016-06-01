@@ -1,3 +1,18 @@
+[Josh @ 2016-06-01 03:44:36] 
+
+Added timer to welcomeinfo
+Added links to site-map
+Removed mock data
+Added mock data to a private git
+
+The timer was the part I dreaded the most.  Turns out you have to use angular specific libraries to make it work.  Using built-in javascript functions couldn't run inside modules.  Introducing $interval and $watch.  Interval is angular's implementation of SetInterval.  $watch tells angular when a variable changes, then it updates it on the view.
+
+To make the timer:
+1. $interval is set to update a date object every second.  
+2. $watch will check the date object, when it sees it changes it updates the view.
+
+
+
 [Josh @ 2016-05-23 16:53:04]
 
 Forwarded back-end to DNS:   api.shiftswapsanity.xyz
