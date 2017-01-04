@@ -473,7 +473,7 @@ function createID(type, callback){
     var t = this;
     var id, found, update;
     type = type.toLowerCase();
-    callback = callback || ()=>{};
+    callback = callback || function(){};
 
     if(!['u','s','h'].some(o=>type===o))
          return console.error('In createID type '+type+' does not match an ID type.  Types are u,s,h.');

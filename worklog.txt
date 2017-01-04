@@ -1,3 +1,8 @@
+[Josh @ 2017-01-03 23:07:13] 
+
+https://blog.risingstack.com/node-hero-node-js-project-structure-tutorial/
+
+
 [Josh @ 2017-01-03 19:01:22] 
 
 Added parse.unixToday
