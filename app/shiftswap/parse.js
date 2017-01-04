@@ -214,13 +214,12 @@ exports.date = {
     },
     unixToday: function(str){
         var today = moment();
-        today = today.
         return moment(str, 'MM-DD-YYYY').utc().unix();
     },
     build: function(month, day, year){
         var iso = pad(2,month,'0')+'-'+pad(2,day,'0')+'-'+pad(4,year,new Date().getUTCFullYear());
         return exports.date.multi;
-    }
+    },
     iso: function(str){
         //Parses dates into a standard MM-DD-YYYY ISO-8601 format
         //str is a string in the form:

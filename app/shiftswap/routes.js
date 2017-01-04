@@ -267,7 +267,7 @@ exports.schedule = {
             
         }
 
-        db.schedule.get(, find, function(err, docs){
+        db.schedule.get(day, -7, find, function(err, docs){
             if(err)
                 return console.error(err);
 
