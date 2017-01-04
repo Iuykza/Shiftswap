@@ -398,4 +398,10 @@ exports.schedule = {
     pretty: function(schedule){
         return schedule;
     },
-}
+};
+exports.phone = function(str){
+    var regexJunk = /\w-\+\(\)/;
+    //1. Remove whitespace, dashes, plus sign, parenthesis.
+    //2. Prepend country code if too short.
+    return str;
+};
