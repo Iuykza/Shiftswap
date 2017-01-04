@@ -20,7 +20,7 @@
 
 		<label><span>Nickname</span>   <input type="text" name="name"></label>
 		<label><span>Email</span>      <input type="text" name="email"></label>
-		<label><span>Cell Phone</span> <input type="text" name="phone"></label>
+		<label><span>Cell Phone</span> <input type="text" name="phone" placeholder="337-123-4567"></label>
 
 		<button class="btn btn-primary">Change password</button>
 
@@ -32,7 +32,7 @@
 			<div class="col-sm-4">
 				<h3>Concession</h3>
 				<ul>
-					<li><label><input type="checkbox"> Cashier</label></li>
+					<li><label><input type="checkbox"> Concession</label></li>
 					<li><label><input type="checkbox"> Runner</label></li>
 					<li><label><input type="checkbox"> Coffee</label></li>
 				</ul>
@@ -43,21 +43,24 @@
 					<li><label><input type="checkbox"> Usher</label></li>
 					<li><label><input type="checkbox"> Back-Podium</label></li>
 					<li><label><input type="checkbox"> Front-Podium</label></li>
+					<li><label><input type="checkbox"> Hospitality</label></li>
+					<li><label><input type="checkbox"> Seater</label></li>
 				</ul>
 			</div>
 			<div class="col-sm-4">
 				<h3>Box/Other</h3>
 				<ul>
 					<li><label><input type="checkbox"> Box Office</label></li>
-					<li><label><input type="checkbox"> Matienance</label></li>
+					<li><label><input type="checkbox"> Maintenance</label></li>
 				</ul>
 			</div>
 		</div>		
 
 		<div class="manager-only">
-			<label><input type="checkbox"> Usher Manager</label>
-			<label><input type="checkbox"> Concession Manager</label>
-			<label><input type="checkbox"> Money Manager</label>
+			<label><input type="checkbox">Usher Manager</label>
+			<label><input type="checkbox">Concession Manager</label>
+			<label><input type="checkbox">Money Manager</label>
+			<label><input type="checkbox">Equipment Manager</label>
 		</div>
 
 		<h2>Trade</h2>
@@ -72,7 +75,12 @@
 		<label>Preferred view</label>
 
 		<h2>Statistics Program</h2>
-		<p><button class="btn btn-info">Opt in</button></p>
+		<p>
+			<button class="btn btn-info">Opt in</button>
+			<button class="btn btn-info">Edit</button>
+			<button class="btn btn-warning">Opt out</button>
+		</p>
+		<p><button class="btn btn-secondary">Learn more</button></p>
 
 	</section>
 {% endblock %}

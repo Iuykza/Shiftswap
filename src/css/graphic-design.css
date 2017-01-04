@@ -1,0 +1,62 @@
+.palette-display{
+    width: 200px;
+}
+.palette-display div{
+    width: auto;
+    height: 2em;
+    box-sizing: border-box;
+}
+
+#palette-main div:nth-child(1){ background: peachpuff;}
+#palette-main div:nth-child(2){ background: tomato;}
+#palette-main div:nth-child(3){ background: maroon;}
+#palette-main div:nth-child(4){ background: indigo;}
+#palette-main div:nth-child(5){ background: #333;}
+
+
+.palette-display#palette-grey{border: 1em solid maroon;}
+#palette-grey div:nth-child(1){ background: ghostwhite;}
+#palette-grey div:nth-child(2){ background: silver;}
+#palette-grey div:nth-child(3){ background: #877;}
+#palette-grey div:nth-child(4){ background: #544;}
+#palette-grey div:nth-child(5){ background: #333;}
+
+.palette-large,
+.palette-large div{
+    width: 100%;
+}
+.palette-large div span{
+    display: inline-block;
+    width: 120px;
+    height: 2em;
+}
+
+#palette-fade div:nth-child(1) span:nth-child(1){ background: peachpuff;}
+#palette-fade div:nth-child(1) span:nth-child(2){ background: ;}
+#palette-fade div:nth-child(1) span:nth-child(3){ background: ;}
+#palette-fade div:nth-child(1) span:nth-child(4){ background: ;}
+#palette-fade div:nth-child(1) span:nth-child(5){ background: ;}
+
+#palette-fade div:nth-child(2) span:nth-child(1){ background: tomato;}
+#palette-fade div:nth-child(2) span:nth-child(2){ background: ;}
+#palette-fade div:nth-child(2) span:nth-child(3){ background: ;}
+#palette-fade div:nth-child(2) span:nth-child(4){ background: ;}
+#palette-fade div:nth-child(2) span:nth-child(5){ background: ;}
+
+#palette-fade div:nth-child(3) span:nth-child(1){ background: maroon;}
+#palette-fade div:nth-child(3) span:nth-child(2){ background: #993232;}
+#palette-fade div:nth-child(3) span:nth-child(3){ background: #b26666;}
+#palette-fade div:nth-child(3) span:nth-child(4){ background: #cc9999;}
+#palette-fade div:nth-child(3) span:nth-child(5){ background: #e5cccc;}
+
+#palette-fade div:nth-child(4) span:nth-child(1){ background: indigo;}
+#palette-fade div:nth-child(4) span:nth-child(2){ background: rebeccapurple;}
+#palette-fade div:nth-child(4) span:nth-child(3){ background: #a57fc0;}
+#palette-fade div:nth-child(4) span:nth-child(4){ background: #c9b2d9;}
+#palette-fade div:nth-child(4) span:nth-child(5){ background: plum;}
+
+#palette-fade div:nth-child(5) span:nth-child(1){ background: #333;}
+#palette-fade div:nth-child(5) span:nth-child(2){ background: #544;}
+#palette-fade div:nth-child(5) span:nth-child(3){ background: #877;}
+#palette-fade div:nth-child(5) span:nth-child(4){ background: silver;}
+#palette-fade div:nth-child(5) span:nth-child(5){ background: ghostwhite;}

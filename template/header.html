@@ -11,13 +11,17 @@
 		<div class="container">
 			<nav class="blog-nav">
 				<a class="blog-nav-item {% if home %}active{% endif %}" href="index.html">Home</a>
-				<a class="blog-nav-item {% if what %}active{% endif %}" href="whats-this.html"  >What's this?</a>
-				<a class="blog-nav-item {% if stats %}active{% endif %}" href="stats.html"       >Statistics</a>
-				<a class="blog-nav-item {% if info %}active{% endif %}" href="info.html"        >Edit info</a>
+				<a class="blog-nav-item {% if what %}active{% endif %}" href="whats-this.html"  >SS Explained</a>
+				<a class="blog-nav-item {% if stats %}active{% endif %}" href="stats.html"      >Statistics</a>
 				<span>|</span>
 				<a class="blog-nav-item {% if news %}active{% endif %}" href="news.html"        >News</a>
 				<a class="blog-nav-item {% if star %}active{% endif %}" href="starbucks.html"   >Learn Starbucks</a>
-				<a class="blog-nav-item {% if movie %}active{% endif %}" href="movies.html"      >Movies</a>
+				<a class="blog-nav-item {% if movie %}active{% endif %}" href="movies.html"     >Movies</a>
+
+				<div class="login-badge">
+					<a id="login"  class="blog-nav-item btn btn-primary" ng-class="isLogged"      href="" >Login</a>
+					<a id="signup" class="blog-nav-item btn btn-secondary" ng-class="isLogged"      href="">Signup</a>
+				</div>
 			</nav>
 		</div>
 	</section>

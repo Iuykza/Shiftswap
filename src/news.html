@@ -4,16 +4,22 @@
 {% set news = true %}
 
 {% block head %}
-	
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700|Open+Sans" rel="stylesheet">
+	<link rel="stylesheet" href="css/news.css">
 {% endblock %}
 {% block content %}
-	<section class="container">
-		<h1>News</h1>
+	<section class="container"><h1>News</h1></section>
+    <section id="main-content" class="container">
+        <section>
+            <p>
+                <a href="http://cinemark348.wordpress.com/">External blog</a>
+            </p>
+        </section>
+        <section id="post-parent">
+        </section>
 	</section>
 {% endblock %}
-
 {% set moment = true %}
-
 {% block script %}
-	
+    <script src="js/news.js"></script>
 {% endblock %}

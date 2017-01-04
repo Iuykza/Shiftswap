@@ -47,8 +47,9 @@
 
 
 
-
-	<h2 style="text-align: center">Big cheese schedule</h2>
+	<div class="container">
+		<h1 id="cheese-header">Big cheese schedule</h1>
+	</div>
 	<section class="container" id="navigation">
 		<ol class="nav nav-pills">
 			<li role="presentation" ng-class="{active: timespan==1}" ng-click="timespan=1"><a href>Month</a></li>
@@ -123,6 +124,7 @@
 	<script>
 	angular.module('scheduleApp',['ngRoute']);
 	
+	//Initialize datepicker
 	$(function(){
 		$('#sandbox-container .input-group.date').datepicker({
 			weekStart: 4,

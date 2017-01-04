@@ -1,0 +1,2 @@
+rolling.svg http://loading.io/
+bar.svg http://www.ajaxload.info/

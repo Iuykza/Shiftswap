@@ -1,4 +1,1048 @@
-[Josh @ 2016-06-01 03:44:36] 
+[Josh @ 2017-01-03 19:01:22] 
+
+Added parse.unixToday
+Added parse.human
+Added parse.build
+
+
+[Josh @ 2017-01-03 15:46:44] 
+
+Refactoring routes.schedule
+Added db.schedule.getAll
+Added db.schedule.getFloor
+Added db.schedule.getManager
+
+These are able to retrieve a schedule between two points of time thanks to queries $and, $lt, $gt.
+
+
+[Josh @ 2017-01-03 04:52:21] 
+
+First text reply to API and was able to respond back.
+
+
+[Josh @ 2017-01-03 03:40:47] 
+
+First text sent from the Twilio API through Express.
+
+
+[Josh @ 2017-01-02 20:30:32] 
+
+Refactoring routes.sms
+
+I'm dropping ClickSend and Swapping over to Twillo.  Mostly because they have a dedicated number I wanted.  But I noticed the documentation is very very nice.  I think I'll like it much better.
+
+Spent most of today coming up with a good dedicated number and I landed on:
+1-COPE-A-SHIFT
+
+It isn't exactly what I wanted, but it's easily memorable and has "shift" in the name.
+
+
+
+
+[Josh @ 2017-01-02 15:46:12] 
+
+Any sufficiently advanced incompetence is indistinguishable from malice." ~ Gray's Law
+
+[Josh @ 2017-01-02 03:29:10] 
+Breaking things once again.  The routes page is too disorganized.  At the time I didn't know how to set up all the exports so I put everything into routes.  After my work on one particular HTML5 game, I realize I'll just have to make every export as abstract as possible so I don't end up with a long dependency chain.  Routes will still need access to everything, but I'm just moving several functions into their own exports.  These functions are completely independent of each other.  This will make the app at most 3 levels deep in dependencies (ignoring some minor scripts and vendors):  index -> routes -> some-specific-module.
+
+This is how a trade create is handled by the SMS API.
+1.User texts the server to "trade tomorrow"
+2.Express sees SMS path
+  3. Call routes.sms.read
+    3.1. Text is parsed to understand which command is needed.
+    3.2. Get tomorrows shift from the database
+         - Call db.user(uid, tomorrow)
+    3.3. Trade this shift
+         - Call trade.make(sid)
+    3.4. Reply back to user that trade has been made.
+         - Call sms.send(res.phone, success)
+
+
+
+I've also been gaining a good understanding of how Kronos is set up.  Will be writing a guide/note as I progress.
+
+
+
+[Josh @ 2017-01-01 06:39:14] 
+
+FT-REQ: Minimal navigation.
+
+On the schedule week/calendar.  Hide the date picker and forward/backward buttons.  Have these appear when hovering over the title, or allow side scrolling.  
+
+
+FT-REQ: PDF schedule links.
+
+On the main page, link back to the emailed PDF schedule.  This way if Shiftswap displays a schedule incorrectly, users will be able to fallback upon the PDF.
+
+
+FT-REQ: Hypersearch.
+
+Myspace style search with filters, fuzzysearches names, and find by date.
+
+1. Type anywhere to begin.
+2. Parse negation. A minus sign followed by a word.
+3. Match and remove filters.  Any word followed by a colon.
+4. Days.
+5. Time of day.
+6. Roles.
+7. Fuzzy search remaining text for names.
+
+If one date/day
+  Jump to this
+
+If two dates
+  Display range
+
+If "date + date"
+OR date, date
+  Display separate dates side by side
+
+If time
+  Display shifts that include this time.
+
+If name
+  Display fuzzy matches in order by accuracy, second by alpha
+
+
+Possible breaks:
+
+An employee has the name of a weekday, a role, or a number.
+e.g.
+Wednesday Adams 
+Usher (rapper)
+
+
+
+
+
+[Josh @ 2016-12-31 15:32:02] 
+
+A login request looks like this:
+<?xml version = "1.0" encoding = "UTF-8"?>
+<Kronos_WFC version = "5.0">
+  <Request
+    Object = "System"
+    Action = "Logon"
+    Username = "SomeValidUsername"
+    Password = "SomeValidPassword"
+  />
+</Kronos_WFC>
+
+
+A session lasts up to 30 minutes.  If inactive longer than that, info in the session cache will be lost and you'll have to relogin.
+
+A ping can keep the connection alive.  It takes the form:
+
+<?xml version = "1.0" encoding = "UTF-8"?>
+<Kronos_WFC version = "5.0">
+  <Request
+    Object="System"
+    Action="ping"
+  />
+</Kronos_WFC>
+
+
+Because this is a server application that is dependent upon having up-to-date schedule infos, there would be no reason to log off or to go inactive.
+1. Start up Shiftswap
+2. Login to Kronos
+3. Get schedule data
+4. Repeat step 3 every x minutes
+
+
+However it is possible to combine multiple requests.  Have it login, get some data, and logoff.
+
+
+
+
+
+
+[Josh @ 2016-12-31 15:03:37] 
+I'm begninng to question the security and privacy of letting me in the API.  There's so much stuff it can do.  It basically has as much control as a full administrator giving ability to:
+- Edit/create time punches
+- Edit users
+- Make audits
+
+
+And I don't need any of these.  I just need to view schedule data.
+
+FT-REQ:
+
+Show birthdays on calendar.
+
+
+[Josh @ 2016-12-30 01:07:47] 
+
+Found more pdfs on the API.  Got all the manuals I could ever need on Kronos. Now I wish I had more examples to go from.
+
+
+[Josh @ 2016-12-29 23:19:38] 
+
+Searched the web for more info on the Kronos API and Kronos in general.  Information is very scarce.
+
+StackOverflow has no community for it.
+
+There's a Yahoo Groups community: Kronos-Fans, with new posts daily.
+  But it's more business oriented instead of programmer.
+  https://beta.groups.yahoo.com/neo/groups/kronos-fans
+
+A phpBB forum KronosForum but with little user involvement.
+  http://www.kronosforum.com/forum/
+
+Managed to scrap up a few pdfs.  One in particular giving full details to the XML API.
+
+
+
+
+
+
+[Josh @ 2016-12-29 02:51:20] 
+
+Wrote up a web scraper with PhantomJS to get schedule data from Backstage.  I'm ironically calling it Ethos, because in order for it to work I have to look past several ethical concerns involving privacy invasion.  Using Phantom was surprisingly easy.  However I still need to do some cleaning up of data.  It looks like this right now.
+
+[{"date":"Date: Sun 1/1/2017","time":"Time:  6:30PM - 12:00AM","type":"Shift: Concession"},{"date":"Date: Thu 1/5/2017","time":"Time: 12:00PM -  5:00PM","type":"Shift: Usher"},{"date":"Date: Thu 12/29/2016","time":"Time:  8:30AM - 12:30PM","type":"Shift: Usher"},{"date":"Date: Thu 12/29/2016","time":"Time: 12:30PM -  1:00PM","type":"Shift: Break"},{"date":"Date: Thu 12/29/2016","time":"Time:  1:00PM -  4:00PM","type":"Shift: Usher"},{"date":"Date: Sat 12/31/2016","time":"Time: 10:00AM -  1:30PM","type":"Shift: Usher"},{"date":"Date: Sat 12/31/2016","time":"Time:  1:30PM -  2:00PM","type":"Shift: Break"},{"date":"Date: Sat 12/31/2016","time":"Time:  2:00PM -  5:00PM","type":"Shift: Usher"},{"date":"Date: Sat 12/31/2016","time":"Time:  5:00PM -  8:30PM","type":"Shift: Concession"},{"date":"Date: Sat 12/31/2016","time":"Time:  8:30PM -  9:00PM","type":"Shift: Break"},{"date":"Date: Sat 12/31/2016","time":"Time:  9:00PM - 12:00AM","type":"Shift: Concession"}]
+
+1. Delete entries with shift break.
+2. Strip title and colon.
+3. Whitespace.
+4. Combine same dates.
+5. Send POST request to Backend.
+
+In addition, It would be a good idea to document my code and rewrite it into separate functions of each page load.  And there's a setTimeout that needs to be replaced by events.
+
+
+
+[Josh @ 2016-12-28 22:45:23] 
+
+Finally got it.  I can combine $lt and $gt in a single query.
+
+db.schedules.find({'date.unix':{$lt:1480572000, $gt:1480312800}})
+
+
+
+[Josh @ 2016-12-27 02:35:54] 
+
+Add to homescreen button.
+https://developers.google.com/web/fundamentals/engage-and-retain/app-install-banners/
+
+Create a mobile friendly App Shell
+https://developers.google.com/web/fundamentals/getting-started/codelabs/your-first-pwapp/
+
+[Josh @ 2016-12-25 00:49:41] 
+
+https://www.npmjs.com/package/express-mquery
+
+[Josh @ 2016-12-08 00:54:07] 
+
+Possibilities for grabbing a seven day week:
+
+1. OR operator
+2. Referenced Relationships  https://www.tutorialspoint.com/mongodb/mongodb_relationships.htm
+
+
+
+
+[Josh @ 2016-12-08 00:15:32] 
+
+No commits yet.  More reading on Mongo.  The CodeSchool videos were really great.  Basic commands:
+
+> db
+    //gets working db name
+
+> show dbs
+    //shows all created dbs
+
+> use [name]
+    //changes working db
+
+> delete db
+    //destroys entire db, warning: no safety
+
+> mongodump
+    //backups all dbs in mongo.  Switches are:
+        --dbpath DB_PATH
+        --out BACKUP_DIRECTORY
+        --collection COLLECTION
+        --db DB_NAME
+
+> mongorestore
+    //restores from a backup
+
+
+
+
+
+Advanced stuff:
+
+
+
+> db.schedule.update(..., {$inc:{age: 5}})
+    //will increment a value
+
+> db.schedule.update(..., {$inc:{count: 5}}, {upsert: true})
+    //will increment a value in the matched document, if none matched will create it
+
+> db.schedule.update(..., {$set:{gender: "male"}})
+    //adds an additional field to a document, without set the entire document is replaced
+    //update will only affect the first matched document
+
+> db.schedule.update(..., ..., {multi: true})
+    //update applies to all matched documents, not just one
+
+> db.schedule.update({}, ..., {multi: true})
+    //An empty object in find returns the whole collection, probably also want multi: true.
+
+> db.schedule.update(..., {$unset:{age: 1}})
+    //removes a field
+
+> db.schedule.update(..., {$rename:{gender: "sex"}})
+    //renames a field
+
+> db.schedule.find({$or:[
+    {access:"admin"},
+    {access:"spectator"}
+ ]})
+    //OR operator, find something that matches either
+
+> db.schedule.find({age:{$lt: 40}})
+    //Less than operator, and works with $gt, $gte, $lte, $ne
+
+> db.schedule.find().sort({last_name:1})
+    //Sorting
+
+> db.schedule.find().count()
+    //Counts number of results
+
+> db.schedule.find().limit(4)
+    //Limits number of results
+
+
+
+I got all this from:
+https://youtu.be/pWbMrx5rVBE
+
+And his channel is full of these web videos:
+https://www.youtube.com/user/TechGuyWeb
+
+Will be sure to check out more later.
+
+
+
+[Josh @ 2016-12-05 02:11:30] 
+
+So most of it works now, but I'm stuck.  The backend needs to send back a week worth of data, not just one day.  For every query I could rerun seven calls to the database, but this isn't an ideal solution.  There's obviously something Mongo can do about it, I just haven't gotten far enough past the basics to know what that is.
+
+And I don't want to fake this because I know if I build the program around this style I could potentially be tossing all this code away sometime in the future, just like I'm doing now with the fake DB.  It's a case of: do it now instead of later.  
+
+So right now  I'm reading up on Mongo and browsing courses.  This looks promising:
+
+http://campus.codeschool.com/courses/the-magical-marvels-of-mongodb/contents
+
+
+[Josh @ 2016-12-02 08:58:01] 
+
+Fixed 12hour / military hour conversions
+Work getting time data on schedule
+
+
+[Josh @ 2016-12-01 21:43:11] 
+
+Fixed backend to be more lenient with types.  It was always expecting a JSON string.
+
+
+[Josh @ 2016-11-30 06:05:34] 
+
+FT-REQ: link back to PDF schedule from the homepage.
+
+[Josh @ 2016-11-30 02:33:58] 
+
+Fixed backend to send multi type with correct date.
+
+[Josh @ 2016-11-30 02:19:35] 
+
+Work on frontend rendering dates.  Appears backend will send a multi type back as an iso with today's date.
+
+[Josh @ 2016-11-29 20:12:14] 
+
+Backend saves dates as the multi type.
+
+Schedule times parse midnight 12:00am as 1200 military.  Should be either 2400 or 0.  Find a way to incorporate past midnight. Managers get scheduled 1:30am. etc.
+
+
+[Josh @ 2016-11-29 06:19:56] 
+
+Fixed incorrect dates.  It was a problem with the current-week-forcer adding instead of subtracting.
+
+[Josh @ 2016-11-29 04:00:47] 
+
+Fixed creating new schedules.  I changed the date into an object type, but the database was still expecting dates to be string.  Additionally it wasn't correctly reporting the error.  The frontend gets a 200 OK response even though the logic on the backend says something broke.  Not sure if this is because the type is POST.
+
+TODO: Date is still incorrect.  I'm always getting back today's date no matter what I select on calendar.
+
+
+[Josh @ 2016-11-29 01:23:24] 
+
+Broke something. Unable to create new schedules, but can create new users?
+
+
+[Josh @ 2016-11-28 15:37:05] 
+
+Found the problem with unix timestamps.  It appears they were being stored as UTC and read in different timezones.
+
+http://stackoverflow.com/questions/9756120/how-do-i-get-a-utc-timestamp-in-javascript
+
+To fix this.  Unix timestamps will need to be stored and read as UTC (Coordinated Universal Time).
+
+
+With the Date object, use getTimezoneOffset:
+
+function getCurrentTimeUTC()  //Returns number of milliseconds between current UTC time and midnight of January 1, 1970
+{
+    //http://stackoverflow.com/a/25512985/4147786
+    var tmLoc = new Date();
+    return tmLoc.getTime() + tmLoc.getTimezoneOffset() * 60000;  //The offset is in minutes -- convert it to ms
+}
+
+function getTimeUTC(year, month, day, hour, sec, ms)
+{
+	day  = day  || 0;
+	hour = hour || 0;
+	sec  = sec  || 0;
+	ms   = ms   || 0;
+    var tmLoc = new Date(year, month, day, hour, sec, ms);
+    return tmLoc.getTime() + tmLoc.getTimezoneOffset() * 60000;
+}
+
+
+
+With Momentjs, use utc:
+
+var m = new moment();
+m.format('dddd, MMMM Do YYYY, h:mm:ss a');       //"Monday, November 28th 2016,  4:22:00 pm"
+m.utc().format('dddd, MMMM Do YYYY, h:mm:ss a'); //"Monday, November 28th 2016, 10:22:00 pm"
+
+
+Can also save a moment as utc:
+
+var m = new moment();
+m = m.utc();
+
+
+
+
+
+[Josh @ 2016-11-27 06:00:12]
+
+Decided on a way to store things.
+
+- No truncation or abbreviation.  Ensures data stays the same on both ends.
+	F, M, G, A. no.
+	floor, manager, general manager, admin. yes.
+
+- No plurals.  To prevent confusion.
+	type = employees? no.
+	type = employee? yes.
+
+- If a common type cannot be agreed upon use all of them.  Ensure stability.
+	iso, unix, human.
+
+- Convert to lowercase.
+
+
+Types were stored in the server as abbreviated forms.  This way space could be saved.  However how much of an impact will it make is unknown.  In the future if space does become a problem I will re implement this.  Right now it's just adding to the confusion.
+
+Time operations are a second problem.  UNIX has the advantage of easy math operations, but seems to break from timezone.  ISO is easier to read but it has trouble converting.  I'm just saving them both and even adding a human readable string.
+
+TODO: implement changes frontend, backend
+
+
+[Josh @ 2016-11-26 16:09:59]
+
+TODO: Need to decide on a way to store times.
+
+
+
+[Josh @ 2016-11-26 08:18:32]
+
+Fixed rend function
+Progress fixing week view
+
+
+[Josh @ 2016-11-25 02:21:05]
+
+I've finally gotten around to fixing the frontend to work with the backend, and now usernames appear in the schedule.  The way the table reads in data needs to be changed.  Currently I have:
+
+1. Is rendered?
+2. grab data
+3. render
+4. view
+
+And it needs to be:
+
+1. have data?
+2. grab data
+3. view
+
+The rendering part is an extra step too error prone and reliant on state management.  Instead of checking upon the state, it needs to check if all the data is there, and grab it if necessary.  Changing this up will break even more code but it has to be done.  I'm considering purging big sections of code.
+
+
+TODO: Use Masonryjs to build a calendar view.
+
+
+
+
+[Josh @ 2016-09-18 15:16:52]
+
+Added parse.multi, returns multiple date formats: ISO, unix, and human
+Added login/signup badge to template
+
+[Josh @ 2016-09-11 17:37:59]
+
+Progress on fixing homepage
+
+[Josh @ 2016-09-08 17:21:03]
+
+No commits made.  40+ hour work week along with school has sapped a big portion of time and energy away from me.  These minimum wage jobs are harsh.  Harsh not only because of the strain on time, but more because of the kind of work and the kind of people I seem to keep seeing.
+
+People with good work ethics are rare.  Why is it so many people fail to think of others?  It's always more taking than giving.  Why do people get angry and choose to let it out on the bystanders around them.  If the day to day requirements of the job don't agree with you then try to fix it or find a different job.  Venting is okay except when done in excess without anything being done to change your problem.  I digress.
+
+I don't want to keep doing this forever, but with my history of constant failures and repeated mistakes it appears there's no other option.  Already behind on school and I'm struggling to see the point in all these irrelevant courses which are taught in a painstakingly way.  Even though it's tough, the answer to this is obvious: Do the work.  Commitment however is the difficult part.  Complacency is much easier to fall into, and although it will be the death of me I seem to always prefer this choice.  Sometimes I'll wake up from my complacent life and again my conscience pulls the reigns forcing me to decide: move with it or die.
+
+Life changer todos for today:
+Take a walk
+Wash the car
+Complete any of the assignments
+Make a commit
+
+
+[Josh @ 2016-08-15 01:45:52]
+
+A whole week passed and still without internet.  Can't get anything done.  Can't check my bank account, pay for school, check my work schedule, or complete those Amazon returns that were supposed to be mailed out long ago.  The SMS feature in Shiftswap would be great for a situation like this, but it isn't set up yet.
+
+FT-REQ: external schedule data.  Allow users to export schedule data such as a second job.  Shiftswap can give alerts for when that second job starts.  Managers can use this data to build their schedule around the employee's other schedule.
+
+FT-REQ: Defer accept shifts. Take shift only if no one else does.
+
+
+[Josh @ 2016-08-09 21:33:33]
+
+Router was fried, will be without Stack Overflow and MDN for a while so there's not much coding I'll be able to get done.  Sad how many times I've had to google Javascript exclusive loops like: for..in, forEach, some, every.
+
+This was the first time I've seen my webpage from an offline standpoint.  CSS breaks because there is no fallback.  I think it's time to stop using my script injector hack and use a real one such as Bower or Browserify.
+
+
+FT-REQ: eventually make the page available offline.  Web caches, web storage.  Store the ajax request and use it as a fallback if new requests fail.
+
+
+FT-REQ: self-diagnosing pages:
+
+1. Have it retry ajax a few times
+1.2
+   If success
+   		done
+   If fail <2 times
+   		retry
+   If fail >=2 times
+   		continue
+2. Try ping to google.com
+   If success
+   		internet connection good.  Shiftswap server connection bad.
+   		therefore: Shiftswap could be down.
+   		Inform user Shiftswap is down, try again later.
+   if fail
+   		Inform user to check connection.
+
+
+
+
+
+[Josh @ 2016-08-09 03:20:32]
+
+Refactoring homepage
+added schedule.getDay
+added schedule.getDayIndex
+added schedule.getUserShift
+added schedule.usersActiveWeek
+added schedule.getDay
+added schedule.shiftMorningOrAfternoon
+added schedule.lastTimecardApproval
+
+TODO: these still need to be tested, might write unit tests?
+
+
+[Josh @ 2016-08-08 04:55:42]
+
+Schedule types send floor or manager when created
+
+[Josh @ 2016-08-07 05:01:13]
+
+Express routing changes
+
+[Josh @ 2016-08-06 14:35:28]
+
+parse.date can now parse unix timestamps
+TODO: API should send both unix and iso formats
+
+[Josh @ 2016-08-02 02:07:36]
+
+pseudocode:
+Find the last day to approve timecard
+
+1. Look at Thursday.
+2. Is the user working this day?
+2.1.
+	If Yes.
+		This is the day we want.
+		End.
+	If No.
+		Look at the day before this one.
+		Disallow stepping more than 7 previous days.
+			This prevents an infinite loop.
+		Goto 2.
+
+
+<!-- Show info about each day as a block -->
+<section ng-repeat="dayblocks">
+
+	<!-- Info about this day
+		 date,
+		 current time,
+		 schedule,
+		 etc.
+		 ...
+	-->
+
+	<!-- ...
+	     Info if last timecard day
+	-->
+
+	<div ng-show="lastTimecardApproval() === day">
+		<p><strong>Last day to approve timecard.</strong></p>
+	</div>
+
+</section>
+
+
+
+[Josh @ 2016-07-31 21:49:26]
+
+Work getting the homepage fixed
+
+Now that I have a working backend, the frontend needs to be changed again so that the calls work.  Going back through all that code; nothing makes much sense to me.  It's really frustrating that I'll have to scrap pretty much all of it then go back and modularize everything.  At least it will make much more sense to the layman.
+
+Funny, I chose to build it this way because I thought it would be faster.  At least *seeing* the frontend working from the start gave me confidence to continue with the project.  However, maybe I shouldn't have gotten so detailed on a system that wasn't meant to become the permanent solution.
+
+[Josh @ 2016-07-30 05:07:48]
+
+Added trade get and post
+Begin switching to mongoose-auto-increment for IDs
+
+
+[Josh @ 2016-07-28 23:27:42]
+
+Learning Adobe Illustrator
+
+
+[Josh @ 2016-07-24 02:57:54]
+
+Fixed an error with parse.date() when passed nothing it should return today.  I was using new Date().getDay(), but this returns the current day of the week and not the day of the month.  new Date().getUTDDate() does this instead.
+
+[Josh @ 2016-07-22 15:50:12]
+
+bulletproofing parse.military.pad()
+
+
+[Josh @ 2016-07-20 04:44:02]
+
+bulletproofing parse.date()
+
+This unit testing thing is a huge time saver.  What would have taken me several days worth of rerunning API calls to the sever and several times of rewriting code only to delete it... this was all taken care of in one day.  I probably wouldn't have even gotten this detailed either, and it paid off because of the bugs I discovered.  Additionally I now have something organized, something easily reusable, and something that checks multiple test cases.
+
+
+[Josh @ 2016-07-19 21:22:56]
+
+bulletproofing parse.time()
+
+
+[Josh @ 2016-07-18 23:56:16]
+
+Learning unit testing
+
+Too much time is getting wasted trying in debugging my parse function and in general the whole program.  I need a way to check if the individual functions work by themselves and without requiring so much setup.  I'll be looking into Unit Testing.
+
+
+[Josh @ 2016-07-16 16:51:19]
+
+Some work to default express paths
+TODO: honor DNT header somehow.
+req.headers['dnt']
+
+
+[Josh @ 2016-07-16 12:47:41]
+
+Some minor fixes to time and date parsers
+Documentation
+
+[Josh @ 2016-07-14 04:25:01]
+
+TODO: a better SMS api?
+https://www.twilio.com/sms
+https://www.twilio.com/sms/pricing
+
+TODO: add ticks to timeslider
+https://raw.githubusercontent.com/bseth99/jquery-ui-extensions/master/ui/jquery.ui.labeledslider.js
+https://raw.githubusercontent.com/bseth99/jquery-ui-extensions/master/themes/base/jquery.ui.labeledslider.css
+
+TODO: Use ISO, store in UTC, return in UTC, ...
+http://apiux.com/2013/03/20/5-laws-api-dates-and-times/
+http://apiux.com/2013/10/18/why-no-one-wants-to-use-your-api/
+
+
+[Josh @ 2016-07-11 22:49:45]
+
+Added data saves to day object
+
+
+[Josh @ 2016-07-11 21:44:36]
+
+Lost an hour because I forgot 0 evaluates to false.
+TODO: Minify ID creation function, use db.collection.createIndex()
+
+
+[Josh @ 2016-07-11 21:08:25]
+
+Work on create schedule for back end
+
+
+[Josh @ 2016-07-11 04:35:53]
+
+Fixed mouse release with slider
+Fixed angular reads to slider
+
+
+[Josh @ 2016-07-11 03:26:27]
+
+Weird values from the jQuery UI slider.  When the mouse is released the value will jump slightly.
+
+Possible fixes:
+http://stackoverflow.com/q/9121160
+
+
+[Josh @ 2016-07-09 03:12:20]
+
+Added wordpress API reads to news page
+Added CSS changes
+	TODO: will need to add CSS support for wordpress classes so content gets displayed correctly.
+
+[Josh @ 2016-07-08 14:47:01]
+
+Added timeslider to the admin-panel
+	still needs work integrating with Angular
+
+[Josh @ 2016-07-07 00:46:39]
+
+http://stackoverflow.com/a/19376296
+
+[Josh @ 2016-07-06 16:59:21]
+
+http://marcneuwirth.com/blog/2010/02/21/using-a-jquery-ui-slider-to-select-a-time-range/
+http://marcneuwirth.com/wp-content/uploads/2011/05/timeslider.html
+
+[Josh @ 2016-07-04 19:57:50]
+
+Logged into my AWS account for the first time in a month and I was shocked to find out I was charged $10.  It sounds like a small amount of money, but considering I did next to nothing with the AWS server, it is a huge deal.  If this was public and everyone was using it, the cost could be 100x higher.
+
+I went through the logs and saw regular spikes at 8:00 UTC.  It must be some kind of automated updater.  Blocks on network traffic are now in place allowing only SSH and HTTP to get through.
+
+
+[Josh @ 2016-06-29 02:37:55]
+
+Work getting backend to accept create-schedule
+	parsing dates
+	parsing times
+
+
+[Josh @ 2016-06-28 21:35:11]
+
+For a while I've been using Unix timestamps to store dates and times in the database.  Its strength is the unambiguity of the format.  UTS is the number of seconds since January 1st, 1970.  British and American dates can cause some confusion because of the change between MM/DD and DD/MM formats.
+
+The problem with UTS is you can't read it, which makes working with the database a little tiresome.  I have to run the number through a converter each time I want to read one of those buggers.
+
+Behold, ISO-8601 to the rescue!  Readable and it uses a standard format across each country.  Of course some CPU cycles are lost on conversions, but the benefit of being able to read it far outweighs this.
+
+The only time I can think of where UTS would be preferable is in a setting that requires adding and subtracting time.  Since UTS is one long number it's straightforward to add or sub from that number.  ISO on the otherhand has to convert hours, days, months, account for leap years.
+
+https://nbsoftsolutions.com/blog/designing-a-rest-api-unix-time-vs-iso-8601
+
+TODO: Edge case - since ISO saves the timezone, edits made from different zones could output differently.  Possibly force UTC+0:00.
+
+
+[Josh @ 2016-06-28 18:38:27]
+
+Added prettyprint to history list
+TODO: finish create-schedule so the homepage will actually load
+
+
+[Josh @ 2016-06-27 22:14:23]
+
+Code formatting to index.js
+Added history list to panel-admin
+
+
+[Josh @ 2016-06-26 17:19:19]
+
+Work on create-schedule
+
+[Josh @ 2016-06-25 17:34:30]
+
+More work on create-schedule
+	UX changes
+
+[Josh @ 2016-06-25 05:44:32]
+
+Some work getting create-schedule on the frontend
+TODO: jQuery time slider, it's already in the vendor folder
+http://ghusse.github.io/jQRangeSlider/documentation.html
+
+
+[Josh @ 2016-06-25 03:45:58]
+
+Updated ID control
+	Resaves to database if not there
+	Controls multiple ID counters
+
+
+[Josh @ 2016-06-24 17:24:33]
+
+Added ID control
+
+
+[Josh @ 2016-06-22 15:38:36]
+
+Some work getting backend to serve schedule
+
+TODO: edge case.  User is viewing the schedule, but a change was made.  Will have to integrate web sockets.  For unsupported browsers, a smart reload needs to be done behind the scenes where it will reload at a set interval, and reload before POST/PATCH data is sent.
+
+[Josh @ 2016-06-18 05:14:25]
+
+TODO: Integrate wordpress
+	GET post, content
+	POST post
+
+wordpress allows access to the full-content HTML of any created posts from their API.  In our case we can use it to seamlessly create a news/blog right on the website.
+
+[Josh @ 2016-06-18 02:59:26]
+
+Added history object to backend, works for user deletion
+
+
+[Josh @ 2016-06-17 16:49:30]
+Minor refactor routes.js
+Begin history system, allows small rollback of edits similar to wikipedia
+Added history UI
+
+
+[Josh @ 2016-06-17 06:58:27]
+added user patching in panel-admin
+
+
+
+[Josh @ 2016-06-17 02:00:22]
+in panel-admin
+	added user delete
+	fixed user list
+
+[Josh @ 2016-06-16 22:03:10]
+added user create in panel-admin
+
+
+[Josh @ 2016-06-14 00:39:12]
+
+Successfully send Mongo data over Express
+Modified routes
+
+
+[Josh @ 2016-06-13 23:54:07]
+
+Separated server to its own script
+Separated configure data to json scripts
+
+
+[Josh @ 2016-06-12 04:06:22]
+
+That was partially correct.  Exposing the express app to a variable does allow it to be accessed in other files, but it doesn't solve the problem with passing stuff to the inside of an express route.
+
+I'm beginning to think there is no way to pass a variable like this.  I was planning on doing some "magic" with function's bind but I'll skip it, because I did find a solution.
+
+Middleware is a common problem with server based apps.  The Express devs recognized this and added methods to help.  App.locals allows you to save a variable within an express app with a string key.  After being saved, it can be accessed from any f(req,res).
+
+http://stackoverflow.com/a/20719659
+https://www.npmjs.com/package/shrinkroute
+
+
+[Josh @ 2016-06-10 16:09:09]
+
+I get it now.  after you create a new express or mongodb connection, it returns a variable that can be used for further commands.  You connect to the server once in this file, then you can do whatever as many times as you need throughout the whole app.
+
+
+//server.js
+exports = module.exports = {};
+
+var mongoose = require('mongoose'),
+   express = require('express');
+
+exports.db = mongoose.connect('mongoose://localhost/sanity');
+exports.app = express.connect();
+
+
+Here's what the structure of the files will look like.
+
+Main
+	dbStuff
+	express
+
+
+
+
+
+[Josh @ 2016-06-09 03:53:41]
+
+Scratch that, I now have to build an express app the right way.  I hit a hurdle.  My app is setup like this right now.
+
+Main
+	dbStuff
+	express
+		routes
+
+
+Routes can't touch any of the dbStuff unless I pass stuff to it.  If I do things this way, it will be more costly in the long run.  I did look at the express example again and it kinda makes sense in parts.
+
+Main
+	express
+		routes
+			customer
+				rawstuff
+			inventory
+				rawstuff
+
+I'm just not sure where to put the dbStuff at.
+
+
+
+
+[Josh @ 2016-06-08 09:29:31]
+
+Started combining mongo with the backend
+
+
+
+[Josh @ 2016-06-07 19:02:51]
+
+Downloaded an example express app to see how they structured theirs.  But there's a lot of new stuff here I don't understand.  It's best to put this off for now and go with "get-it-working" versus "reaching-perfection".  Still I'll try to look at it as I go along.
+
+https://github.com/focusaurus/express_code_structure
+http://stackoverflow.com/a/19623507
+http://javascriptissexy.com/javascript-apply-call-and-bind-methods-are-essential-for-javascript-professionals/
+
+
+[Josh @ 2016-06-07 11:28:46]
+
+Todo: more converting
+
+So both IE and Safari don't like ES6.
+https://kangax.github.io/compat-table/es6/#ios9
+https://www.microsoft.com/en-us/WindowsForBusiness/End-of-IE-support
+
+When running my code through jslint I discovered not only does it not like for..in loops, but they are in general considered frowned upon:
+
+	* They run slower than a traditional for
+	* It loops over inherited properties from Array.prototype
+	* It won't always return in the same order
+
+http://stackoverflow.com/q/500504
+
+What this means is I again have to scrap my code.  I was already in the process of putting the mock data into the db, so I won't have to worry about changing that later if I do both together.
+
+Stuff todo:
+
+	1. Freshen up with MongoDB and Mongoose.js
+	2. Connect to Express
+	3. Separate Express into modules
+
+	4. Rearrange project files in js folder and fix gulp
+	5. Build admin panel
+
+	6. Fix now broken homepage
+	7. Replace ES6 somehow
+
+
+
+
+[Josh @ 2016-06-06 21:38:46]
+
+Progress on converting mock to db
+
+
+[Josh @ 2016-06-06 05:22:10]
+
+Todo: text reply disambiguation
+
+When an employee accepts a shift via texting.  A typical conversation with the server goes like this.
+
+RECV 7:05 Shift available.  Accept? Y or N.
+SEND 7:07 Y
+
+However if two shifts are advertised at nearly the same time, this can cause confusion.
+
+RECV 7:05 Some      shift available.  Accept? Y or N.
+RECV 7:07 Different shift available.  Accept? Y or N.
+SEND 7:07 Y
+
+To make matters worse a text can be delayed during delivery.  Even if the reply was made before the second shift was advertised, the server could already be using the second as the current context.
+
+7:04:10  Server:    Context shift 1. Advertise. Text employee.
+7:05:00  Employee:  Received text shift 1 and is deciding.
+7:06:23  Server:    Context shift 2. Advertise. Text employee.
+7:07:00  Employee:  Decides to take shift 1.  Replies back yes.
+7:07:10  Employee:  Received text shift 2.
+7:06:23  Server:    Context shift 2. received reply yes.  Confirms employee for shift 2.
+
+
+So instead of using a Y or N type response.  Require a number system for each.
+
+RECV 7:05 Some      shift available.  Accept? Y or N.
+RECV 7:07 Multiple  shifts available. Accept? 1, 2, or N.
+RECV 7:07 Multiple  shifts available. Accept? 1, 2, 3, or N.
+SEND 7:07 2
+
+We still want to keep the Y/N response type because it's fast.  Because the second reply takes a different response, receiving a Y/N wouldn't create any confusion.  Also every close reply after the first will use the number responses.  So this way, replying "yes" will always reply back to the first shift you see.  Replying "2, 3, 4, etc" will reply back to the second, third, fourth.  No reply would conflict with multiple trades.
+
+Defining a conflict.
+
+
+
+
+
+[Josh @ 2016-06-04 14:48:19]
+
+Added detail to What's This
+
+
+[Josh @ 2016-06-03 05:57:48]
+
+Testing MongoDB reads and writes
+
+
+[Josh @ 2016-06-02 01:50:23]
+
+Researching user authentication
+
+Passport looks like a good choice.  However I'm getting too ahead.  I'll need to change the server to use a real database instead of mock data.
+
+
+
+
+[Josh @ 2016-06-01 03:44:36]
 
 Added timer to welcomeinfo
 Added links to site-map
@@ -8,7 +1052,7 @@ Added mock data to a private git
 The timer was the part I dreaded the most.  Turns out you have to use angular specific libraries to make it work.  Using built-in javascript functions couldn't run inside modules.  Introducing $interval and $watch.  Interval is angular's implementation of SetInterval.  $watch tells angular when a variable changes, then it updates it on the view.
 
 To make the timer:
-1. $interval is set to update a date object every second.  
+1. $interval is set to update a date object every second.
 2. $watch will check the date object, when it sees it changes it updates the view.
 
 
@@ -19,7 +1063,7 @@ Forwarded back-end to DNS:   api.shiftswapsanity.xyz
 Set up back-end on AWS
 Installed pm2
 
-Had to forward the port as well.  This way you don't have to type api.shiftswapsanity.xyz:3000.  
+Had to forward the port as well.  This way you don't have to type api.shiftswapsanity.xyz:3000.
 
 Tried SRV records with the DNS with no luck.  Instead I forwarded at the server end.  The back-end still runs on 3000 as node convention.  I used libcap to forward port 80 traffic to 3000.
 
@@ -30,12 +1074,12 @@ https://github.com/Unitech/pm2
 
 
 
-[Josh @ 2016-05-21 15:32:19] 
+[Josh @ 2016-05-21 15:32:19]
 
 Forwarded front-end to DNS:  shiftswapsanity.xyz
 Set up front-end on gitpages
 
-Spent at least three hours playing with the DNS settings not knowing why it wouldn't work before realizing it takes "up to a day" for it to take effect.  Woke up to see it working.  
+Spent at least three hours playing with the DNS settings not knowing why it wouldn't work before realizing it takes "up to a day" for it to take effect.  Woke up to see it working.
 
 https://www.namecheap.com/support/knowledgebase/article.aspx/9645/2208/how-do-i-link-my-domain-to-github-pages
 http://stackoverflow.com/a/23375423
@@ -43,67 +1087,70 @@ http://stackoverflow.com/a/23375423
 
 
 
-[Josh @ 2016-05-20 23:01:40] 
+[Josh @ 2016-05-20 23:01:40]
 
 Progress setting up back-end on AWS.
 
 Lots of linux terminal knowledge needed here.  I'm pretty rusty at it.  Good commands to know:
 
 	Directories
-		/home/         home directory
-		/etc/rc.local  file with commands that runs at boot
+    ~                   home directory
+		/home/              home directory
+		/etc/rc.local       file with commands that runs at boot
 
 	Files
-		ls            shows directory contents
-		pwd           current directory
-		cd            change  directory
-		mkdir         make    directory
-		rm -r         delete  directory
-		rm            delete  file
-		cp            copy    file
+		ls                  shows directory contents
+		pwd                 current directory
+		cd                  change  directory
+		mkdir               make    directory
+		rm -r               delete  directory
+		rm                  delete  file
+		cp                  copy    file
 
 	Install
-		yum           package manager
-		yum install   install package
-		yum search    find package fuzzysearch
-
+		yum                 package manager
+		yum install         install package
+		yum search          find package fuzzysearch
+		wget                ???
 
 	Processes
-		top           process list
-		top | grep    get process that matches particular name
+		top                 process list
+		top | grep          get process that matches particular name
+		kill [pid]          stops a process
+		kill [pid] -kill    force stops a process
 
 	Other
-		pm2           node process manager
-		grep          pattern searcher with highlighting
+		pm2                 node process manager
+		grep                pattern searcher with highlighting
 
 
 
 
 
-[Josh @ 2016-05-18 05:28:28] 
+[Josh @ 2016-05-18 05:28:28]
 
 Created Schedule-by-day
 Fixed the button switching between month, week, day
 Progress on welcomeinfo
 
 
-[Josh @ 2016-05-17 15:11:38] 
+[Josh @ 2016-05-17 15:11:38]
 
 Fixing things again with $q.defer()
 
 
-[Josh @ 2016-05-16 04:19:39] 
+[Josh @ 2016-05-16 04:19:39]
 
 Mother of god it works.
 
 
-[Josh @ 2016-05-14 14:51:53] 
+[Josh @ 2016-05-14 14:51:53]
 
 Dependencies!  I was getting ready to make every call a function that returns a promise. That would have been a nasty bugger.  Instead I found a solution to send async data across multiple controllers using built-in angular factories and $q.
 
 http://embed.plnkr.co/FeHc7u/
 
-[Josh @ 2016-05-12 17:39:27] 
+[Josh @ 2016-05-12 17:39:27]
 
 Renamed dev folder to src
 
@@ -131,7 +1178,7 @@ I can't because I have them separated into different controllers, and I don't kn
 TODO: look into $q
 
 
-[Josh @ 2016-05-10 21:39:23] 
+[Josh @ 2016-05-10 21:39:23]
 
 Changes to welcomeinfo.html
 Refactored angularapp.js
@@ -144,21 +1191,21 @@ Order matters when it comes to dependency.  This works:
 	}]);
 
 This doesn't:
-	
+
 	.controller('controlwelcome', ['dataService', '$scope', function($scope, dataService){
 
 	}]);
 
-Well it might, but the variables will be stored to the wrong scope.  Had to deal with a ton of scope debugging before I figured this one out.  
+Well it might, but the variables will be stored to the wrong scope.  Had to deal with a ton of scope debugging before I figured this one out.
 
 
 
-[Josh @ 2016-05-09 01:58:22] 
+[Josh @ 2016-05-09 01:58:22]
 
 TODO: Move api-key and username to separate file.
 	  This will prevent the private keys from appearing in GitHub searches.
 
-[Josh @ 2016-05-08 15:32:45] 
+[Josh @ 2016-05-08 15:32:45]
 
 SMS work in apiserver.js
 Sent a text message from Node.js
@@ -172,7 +1219,7 @@ Also I was going to expose my API key on the front-end.  Bad idea!  There's a hi
 
 
 
-[Josh @ 2016-05-06 03:42:35] 
+[Josh @ 2016-05-06 03:42:35]
 
 Reworked Directory map on develop.html
 TODO: manager smart times, type in military time or have it automatically know AM or PM by context.
@@ -188,27 +1235,27 @@ Done with a recursive algorithm and it is lovely.  This replaces the nasty html 
 The data is now in json.  Still not as pretty as I'd like it to be, but it's a huge improvement.
 
 
-[Josh @ 2016-05-05 03:32:09] 
+[Josh @ 2016-05-05 03:32:09]
 
 Minor update to develop.html
 
 Been busy with work and finals, not many updates sorry.
 
 
-[Josh @ 2016-05-02 21:25:46] 
+[Josh @ 2016-05-02 21:25:46]
 
 Added robots.txt
 
 This will prevent bots from accessing the entire website.  Unfortunately it also stops the page from appearing on google.  Not sure if this is the best approach.  I do need some way to prevent the schedule from being crawled.
 
 
-[Josh @ 2016-05-01 11:49:53] 
+[Josh @ 2016-05-01 11:49:53]
 
 Added policy.html (private policy)
 
 
 
-[Josh @ 2016-04-30 16:09:46] 
+[Josh @ 2016-04-30 16:09:46]
 
 TODO: opt-out function
 
@@ -220,7 +1267,7 @@ TODO: bar management shifts from the floor schedule.
 When a floor employee is promoted to management someone will additionally have to promote them within shiftswap.  Until then, their schedule will be displayed along with the floor employees.  So prevent any management shifts from appearing within the floor schedule.  This will have to be done from the server end.
 
 
-[Josh @ 2016-04-29 23:45:16] 
+[Josh @ 2016-04-29 23:45:16]
 
 Beginning of refactoring to controllers
 Added dataService
@@ -237,7 +1284,7 @@ http://campus.codeschool.com/courses/shaping-up-with-angular-js/level/1/section/
 
 
 
-[Josh @ 2016-04-29 08:46:37] .............................................. 
+[Josh @ 2016-04-29 08:46:37]
 
 TODO: big changes to controllers and services.
 
@@ -257,7 +1304,7 @@ My problem was I was doing everything at the controller level.  I'll need to mov
 
 
 
-[Josh @ 2016-04-28 23:26:21] .............................................. 
+[Josh @ 2016-04-28 23:26:21]
 
 Updates to schedule
 Updates to data
@@ -278,7 +1325,7 @@ I completely restructured the way data is stored and it finally makes sense.  Af
 Note: this duplicates schedule data.  UserData stores it by user.  Days stores it by day.  The whole point of this was making it easier to access.  Because of this, if the list ever starts getting too big it could slow down the web browser.
 
 
-[Josh @ 2016-04-26 19:42:00] .............................................. 
+[Josh @ 2016-04-26 19:42:00]
 
 Minor fixes to Gulpfile and styling
 Bug in IE Edge with for..of
@@ -291,12 +1338,12 @@ IE Edge sees that a semicolon is missing between "foo" and "of".  I tried fixing
 
 
 
-[Josh @ 2016-04-25 08:42:20] .............................................. 
+[Josh @ 2016-04-25 08:42:20]
 
 Added gulp live reload
 Progress on Angular
 
-The page now automatically updates immediately after saving it within the text editor.  This should speed up my workflow.  
+The page now automatically updates immediately after saving it within the text editor.  This should speed up my workflow.
 Livereload works by:
 1. The browser has an extension which listens to a local port.
 2. Gulp.watch will watch for changes to given files.  If changes are made it will run ['precondition'] tasks.
@@ -304,7 +1351,7 @@ Livereload works by:
 4. The web browser listener sees the change from the local port and it refreshes the page.
 
 
-[Josh @ 2016-04-24 02:58:36] .............................................. 
+[Josh @ 2016-04-24 02:58:36]
 
 Learning a bit about Angular
 
@@ -314,7 +1361,7 @@ https://docs.angularjs.org/tutorial
 
 
 
-[Josh @ 2016-04-23 03:54:39] .............................................. 
+[Josh @ 2016-04-23 03:54:39]
 
 Finished Gulpfile
 
@@ -325,12 +1372,12 @@ Minifying JS needs some work, but I've given up on it for now.  It required tran
 TODO: Gulp Live Reload and JS minifier.
 
 
-[Josh @ 2016-04-22 20:11:42 ..............................................]
+[Josh @ 2016-04-22 20:11:42]
 
 Minified CSS to dist folder.
 
 
-[Josh @ 2016-04-21 23:32:10 ..............................................]
+[Josh @ 2016-04-21 23:32:10]
 
 Reorganizing HTML files
 Learned about Nunjucks
@@ -341,7 +1388,7 @@ Heads up though, Angular doesn't play nice with Nunjucks.  Angular uses {{}} tag
 
 
 
-[Josh @ 2016-04-20 08:11:15] .............................................. 
+[Josh @ 2016-04-20 08:11:15]
 
 Reorganized folder structure into /dev, /dist, and /node.
 Fixed broken header/footer SSI
@@ -352,7 +1399,7 @@ Broken header footer SSIs.  So the pathnames for SSIs are in relation to the hom
 
 
 
-[Josh @ 2016-04-18 21:21:02] .............................................. 
+[Josh @ 2016-04-18 21:21:02]
 
 Added a favicon
 
@@ -360,14 +1407,14 @@ Learning about Gulp
 
 
 
-[Josh @ 2016-04-17 15:28:35] .............................................. 
+[Josh @ 2016-04-17 15:28:35]
 
 Fixed API sends back json responses as default
 
 http://stackoverflow.com/questions/6661151/in-node-js-express-how-do-i-automatically-add-this-header-to-every-render-res
 
 
-[Josh @ 2016-04-17 04:54:44] .............................................. 
+[Josh @ 2016-04-17 04:54:44]
 
 Learned Jade
 
@@ -375,7 +1422,7 @@ Jade makes generating HTML markup a lot easier and it's super quick to learn.  A
 
 
 
-[Josh @ 2016-04-16 04:00:14] .............................................. 
+[Josh @ 2016-04-16 04:00:14]
 
 Fixed mock data.
 Fixed/partial loading mock data.
@@ -384,29 +1431,29 @@ When using a "for a of b" loop, remember that a is its own object separate from 
 
 
 
-[Josh @ 2016-04-14 21:39:40 ..............................................]
+[Josh @ 2016-04-14 21:39:40]
 
 Added users.json (complete)
 Added mock data.
 TODO: header / footer must be done differently.
 
-I spent the better part of the day creating mock data for the scheduler.  I had lots of trouble getting Angular to agree with me.  I thought I knew what ng-bind did, but apparently not.  
+I spent the better part of the day creating mock data for the scheduler.  I had lots of trouble getting Angular to agree with me.  I thought I knew what ng-bind did, but apparently not.
 
 On the brightside, I now have a complete user list that dates back 13 months.  I also am getting a good warm-up on my javascript just creating little apps here and there for small things.
 
 I ran the webpage on the computers at work and it didn't go so well.  All the computers use IE and it breaks the page - the headers and footers are missing.  I wasn't so concerned about backwards compatibility until now.  I can't rely on Javascript or the client to do too much lifting.  To fix the header/footers I need to use SSI or build the pages with Gulp.
 
 
-[Josh @ 2016-04-13 03:42:28 ..............................................]
+[Josh @ 2016-04-13 03:42:28]
 
 Sent first round trip SMS text with ClickSend.
 
 Although, I used a simpler API version which worked with POST responses.  So simple it could be constructed with a pure HTML form.  Doing this in Node will be entirely different.  This did prove that ClickSend works (or it was easy enough that a dummy like me could use it - same outcome).  The documentation is solid, the dashboard is intuitive.  I'm liking it so far.
 
 
-[Josh @ 2016-04-12 07:32:40 ..............................................]
+[Josh @ 2016-04-12 07:32:40]
 
-Added header and footer to every page using Angular Templates.  
+Added header and footer to every page using Angular Templates.
 
 If javascript becomes an issue, this can be done from the server using Apache's Server Side Includes (SSI). However, this will not appear if run locally.
 	https://httpd.apache.org/docs/current/howto/ssi.html
@@ -416,14 +1463,14 @@ Name idea:  Hypnos the god of sleep and laziness.
 
 
 
-[Josh @ 2016-04-11 16:35:05 ..............................................]
+[Josh @ 2016-04-11 16:35:05]
 
 Added costs.html
 	Shows prices of everything and will show incurred amounts each month.
 
 
 
-[Josh @ 2016-04-10 23:57:02 ..............................................]
+[Josh @ 2016-04-10 23:57:02]
 
 
 via api.html, api.js

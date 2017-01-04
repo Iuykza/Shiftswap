@@ -9,3 +9,4 @@ node_modules/shiftswap/mock/users.json
 node_modules/shiftswap/mock/*.txtz
 
 ftpsync.settings
+desktop.ini

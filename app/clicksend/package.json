@@ -1,0 +1,13 @@
+{
+  "name": "clicksend",
+  "version": "1.0.0",
+  "description": "Clicksend v3 API",
+  "main": "./lib/index.js",
+  "scripts": {},
+  "keywords": [],
+  "author": "APIMATIC SDK Generator",
+  "dependencies": {
+    "request": "^2.55.0",
+    "string": "^3.1.1"
+  }
+}

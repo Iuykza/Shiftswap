@@ -8,11 +8,20 @@
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
 	integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
 	crossorigin="anonymous">
+
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
 	integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r"
 	crossorigin="anonymous">
-	{% if datepicker %}<link rel="stylesheet" href="css/vendor/bootstrap-datepicker3.standalone.min.css">{% endif %}
-	
+
+	{% if datepicker %}
+		<link rel="stylesheet" href="css/vendor/bootstrap-datepicker3.standalone.min.css">{% endif %}
+	{% if prettify %}
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.css">{% endif %}
+	{% if rangeslider %}
+		<link rel="stylesheet" href="css/vendor/jqRangeSlider.iThing.red.css">{% endif %}
+
+	<!-- TODO -->
+	<!-- CSS - Local Fallback -->
 
 	<link rel="stylesheet" href="css/main.css">
 	{% block head %}{% endblock %}
@@ -54,10 +63,16 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>{% endif %}
 	{% if underscore %}
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>{% endif %}
+	{% if lodash %}
+		<script src="https://cdn.jsdelivr.net/lodash/4.13.1/lodash.min.js"></script>{% endif %}
 	{% if moment %}
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.13.0/moment.min.js"></script>{% endif %}
 	{% if datepicker %}
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js"></script>{% endif %}
+	{% if prettify %}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/prettify/r298/prettify.min.js"></script>{% endif %}
+	{% if rangeslider %}
+		<script src="js/vendor/jQAllRangeSliders-withRuler-min.js"></script>{% endif %}
 	{% if fuzzyset %}
 		<script src="js/vendor/fuzzyset.min.js"></script>{% endif %}
 	
@@ -69,6 +84,7 @@
 		{% if true       %}window.jQuery.fn.modal      || injectScript('bootstrap.min');{% endif %}
 		{% if angular    %}window.angular              || injectScript('angular.min');{% endif %}
 		{% if underscore %}window._                    || injectScript('underscore.min');{% endif %}
+		{% if lodash     %}window._                    || injectScript('lodash.min');{% endif %}
 		{% if moment     %}window.moment               || injectScript('moment.min');{% endif %}
 		{% if datepicker %}window.jQuery.fn.datepicker || injectScript('bootstrap-datepicker.min');{% endif %}
 		{% if fuzzyset   %}window.FuzzySet             || injectScript('fuzzyset.min');{% endif %}

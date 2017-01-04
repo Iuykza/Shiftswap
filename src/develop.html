@@ -1,7 +1,6 @@
 {% extends "template/standard.html" %}
 
 {% block title %}Develop{% endblock %}
-{% set movie = true %}
 
 {% block head %}
 	<link rel="stylesheet" href="css/develop.css">
@@ -128,6 +127,12 @@
 				<dt>apiserver.js and routes.js</dt>
 				<dd></dd>
 			</dl>
+		</section>
+
+		<section class="container">
+			<h2>Working with the Back-end or API</h2>
+			<p>The back-end server runs on node.js.  It sends back JSON data and can be interacted with via <code>http://localhost:3000/v1</code>.</p>
+			<p>The /v1 part is the version number.  This number is changed when an update breaks the API.  You can read more about this behavior <a href="#">here</a>.</p>
 		</section>
 
 		

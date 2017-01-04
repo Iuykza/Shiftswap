@@ -10,10 +10,6 @@ section#bigcheese{
 
 
 /*** Legend ***/
-.user-mall{  }
-.user-bist{  }
-.user-mall::after{ margin: 0 0 .3em .3em; vertical-align: top; background: #CFE4FF; content: 'mall '; }
-.user-bist::after{ margin: 0 0 .3em .3em; vertical-align: top; background: #FFCFE4; content: 'bist '; }
 
 .user-box,td.box{ background: #a8e6cf; }
 .user-con,td.con{ background: #dcedc1; }
@@ -33,6 +29,14 @@ section#bigcheese{
 
 
 /** Big Cheese ***/
+h1#cheese-header{
+
+	text-align: center;
+	
+	margin-top: 100px;
+	margin-bottom: 20px;
+}
+
 #navigation .nav-ticks{
 	float: right;
 }
@@ -76,10 +80,13 @@ section#welcomeinfo .subtle{
 	font-size: 1.15em;
 }
 section#welcomeinfo div[class|=col]{
-	border: 2px solid #d02929;
+	border: 2px solid lightsalmon;
 	margin: 0 1em;
 	padding: 1em;
 	min-height: 16em;
+}
+section#welcomeinfo .row{
+	margin-bottom: 2em;
 }
 
 

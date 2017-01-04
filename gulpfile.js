@@ -62,6 +62,22 @@ var nunjuckData = {
 };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/****************************   Gulp Tasks ******************************/
+
 gulp.task('refresh', ['clean', 'default', 'watch'], function(){
 	console.log('Website refreshed.');
 });
@@ -78,9 +94,12 @@ gulp.task('watch', function() {
 
 	livereload.listen();
 	gulp.watch(dev+'*.html', ['html']);
+	gulp.watch('template/*.html', ['html']);
 	gulp.watch(dev+'template/*.html', ['copy']);
 	gulp.watch(dev+'css/*.css', ['css']);
-	gulp.watch(dev+'js/*.js', ['concat']);
+	gulp.watch(dev+'js/*.js', ['concat', 'copy']);
+	gulp.watch(dev+'js/vendor/*.js', ['copy']);
+	livereload();
 });
 
 gulp.task('clean', function(){
@@ -154,6 +173,8 @@ gulp.task('copy', function(){
 		'css/vendor',
 		'js/vendor',
 		'js/stats.js',
+		'js/news.js',
+		'js/panel-admin.js',
 		'font',
 		'template',
 		'robots.txt',
@@ -170,8 +191,6 @@ gulp.task('copy', function(){
 });
 
 
-
-
 minify('fuzzyset');
 minify('xregexp');
 
@@ -186,6 +205,23 @@ function minify(name, file){
 	});
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/****************************   Helper Functions ******************************/
 
 function endsWith(str, strWith){
 	var a = str.split('');

@@ -24,7 +24,7 @@ function(dataService, ajaxService, $scope, $q, $timeout, $interval){
 		t.currentTime = now().format('hh:mm:ss a');
 	}, 1000);
 
-	 $scope.$watch(
+	$scope.$watch(
 		(scope) => t.currentTime,
 		function(newV, oldV){
 			//update currentTime ticker
@@ -72,6 +72,9 @@ function(dataService, ajaxService, $scope, $q, $timeout, $interval){
 	var today = dataService.today;
 	var l     = dataService.list;
 	$q.all([d.ready.days.promise, d.ready.userInfos.promise]).then(function(){
+		console.log('d',d);
+		console.log('today',today);
+
 		var stopGaps = t.stopGaps;
 
 		try{
@@ -172,6 +175,10 @@ function(dataService, ajaxService, $scope, $q, $timeout, $interval){
 			m: str[2]+str[3],
 		};
 		
+	}
+	function isWorkDay(shift){
+		console.log('shift',shift);
+		return true;
 	}
 	function generalForm(){
 		return 'YYYY MMM Do [at] h:mm:ss a';
