@@ -25,6 +25,18 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
             },
         },
         {
+            name:'time',
+            f: ()=>{
+                var m = moment.utc();
+                body = JSON.stringify({
+                    human:   m.format('dddd, MMMM Do YYYY, h:mm:ss a'),
+                    unix:    m.valueOf(),
+                    iso8601: m.toISOString(),
+                });
+                exports.send(number, body);
+            },  
+        }
+        {
             name:'today',
             alias:['now'],
             f: ()=>{
@@ -56,6 +68,7 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
         },
     ];
 
+    //Match their text to the list of commands above
     for(var i=commands.length; i--;){
         var command = commands[i];
         if(S(body).contains(command.name)){
@@ -65,6 +78,10 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
             break;
         }
     }
+    //Reaching this point means nothing matched
+    body = "Sorry didn't understand that.  For a list of commands type help.  For help on a specific command type the command and help.";
+    exports.send(number, body);
+
 };
 exports.send = (toNumber, msg, callback)=>{
     twilio.sendMessage({
