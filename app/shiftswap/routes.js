@@ -31,10 +31,11 @@ exports.home = {
         res.send("Welcome. You have connected to the Shiftswap API.");
     },
     time: (req, res)=>{
+        var m = moment.utc();
         res.send({
-            human:   moment().format('dddd, MMMM Do YYYY, h:mm:ss a'),
-            unix:    moment().valueOf(),
-            iso8601: moment().toISOString(),
+            human:   m.format('dddd, MMMM Do YYYY, h:mm:ss a'),
+            unix:    m.valueOf(),
+            iso8601: m.toISOString(),
         });
     },
     echo: (req, res)=>{
