@@ -241,6 +241,12 @@ function($scope, ajaxService){
 	};
 	this.schedule = {
 		make: (data, callback)=>{
+			if(data.date){
+				var data.unix = new Date(data.date);
+				data.unix = data.unix.valueOf() - (data.unix.getTimezoneOffset() * 60 * 1000); //offset is in minutes, convert to millisecs.
+				data.unix = data.unix / 1000; //convert unixstamp ms to seconds.
+				//data.unix = {'unix': data.unix}; //save identifier data.
+			}
 			return $http
 			.post(server+'schedule',data)
 			.then(callback)
