@@ -4,6 +4,7 @@
 var exports = module.exports = {};
 
 var moment = require('moment'),
+_          = require('lodash'),
 pad        = require('pad')
 ;
 
@@ -55,6 +56,8 @@ exports.time = (str)=>{
     //HH:MM am(pm)
     //HH:MM:SS am(pm)
 
+    //str is rejected if it contains slashes, because it is assumed a date.
+
 
     //str will also accept military formats including integer values:
     // HMM
@@ -83,6 +86,7 @@ exports.time = (str)=>{
     str = str.toLowerCase().trim();
 
     var regMilitary = /\d{3,4}(?![\s\w])/;
+    //If not a military time
     if(str.match(regMilitary) === null){
 
         //Use colon separators
@@ -149,6 +153,8 @@ exports.time = (str)=>{
         //Output the time in correct military HHHH standard.
         return exports.military.pad(h,m)
     }
+
+    //If is a military time
     else{
         //Reject too long
         if(str.length > 4){
@@ -199,122 +205,164 @@ exports.date = {
             human: human,
         };
     },
+    makeUTC: function(y, m, d){
+        //Accepts raw data where
+        // y = year
+        // m = month
+        // d = day
+
+        //Also accepts a UTC unix timestamp where
+        // y = unixstamp
+
+        if(typeof y != undefined &&
+           typeof m === undefined &&
+           typeof d === undefined){
+            //possibly sent a unix timestamp
+            
+            var secondsInDay = 60 * 60 * 24;
+            var unix = y;
+            unix = unix - (unix % secondsInDay); //Remove hours, minutes, seconds.
+            unix = unix - secondsInDay; //Remove extra day
+            return unix/1000;
+        }
+        //Otherwise sent raw
+        return (Date.UTC(y,m-1,d)/1000);
+    },
     unix: function(str){
         //Parse unix
+        if(!str)
+            return;
+
+        if(typeof str === 'object' && str.unix){
+            str = str.unix;
+        }
         if(typeof str === 'number' || countDigitsInNumber(parseInt(str)) === str.length){
-            if(str.length === 10)
-                str = str + '000';
+            if(str.length === 13)
+                str = str.substr(0,10);
             return str;
         }
         //Parse iso
-        return moment(str,'MM-DD-YYYY').utc().unix();
+        return moment(str,'MM-DD-YYYY').unix();
     },
-    human: function(str){
-        return moment(str,'MM-DD-YYYY').utc().format('dddd, MMMM Do YYYY');
+    humanize: function(str, format){
+        format = format || 'MM-DD-YYYY'; 
+        return moment(str,format).utc().format('dddd, MMMM Do YYYY');
     },
     unixToday: function(str){
-        var today = moment();
-        return moment(str, 'MM-DD-YYYY').utc().unix();
+        var today = new Date();
+        return exports.date.makeUTC(today.getUTCFullYear(), today.getUTCMonth()+1, today.getUTCDate());
     },
-    build: function(month, day, year){
-        var iso = pad(2,month,'0')+'-'+pad(2,day,'0')+'-'+pad(4,year,new Date().getUTCFullYear());
-        return exports.date.multi;
+    stringAmerican: function(month, day, year){
+        return pad(2,month,'0')+'-'+pad(2,day,'0')+'-'+pad(4,year,new Date().getUTCFullYear());
     },
-    iso: function(str){
-        //Parses dates into a standard MM-DD-YYYY ISO-8601 format
-        //str is a string in the form:
-        //MM-DD
-        //MM-DD-YY
-        //MM-DD-YYYY
-        //YYYY-MM-DD
-        //MM/DD
-        //MM\DD
-        //MM DD
-        //SSSSSSSSSSSSSS+ (also accepts unixstamp in seconds)
+    stringISO: function(year, month, day){
+        return pad(4,year,new Date().getUTCFullYear())+'-'+pad(2,month,'0')+'-'+pad(2,day,'0');
+    },
+    convertToRaw: function(get){
+        var raw={};
 
+        /*** 1. Get type ***/
+        var type = exports.date.identify(get);
 
-        //Reject empty
-        if(str === null){
-            return console.error('String cannot be empty or null');
+        if(!type){
+            return;
+        }
+        if(type === 'empty'){//empty is used case by case
+            return -1;
+        }
+        if(type === 'full'){ //echo if correct
+            return get;
         }
 
-        //Assume no parameter means today
-        if(typeof str === 'undefined' || str === ''){
-            console.log('Assume no parameter means today',str);
-            var today = new Date();
-            return pad(2,(today.getUTCMonth()+1),'0')+'-'+pad(2,today.getUTCDate(),'0')+'-'+today.getUTCFullYear();
+        /*** 2. Salvage. ***/
+        switch(type){
+            case 'raw':
+                break;
+            case 'raw-p':
+                raw.yyyy = get.yyyy;
+                raw.mm = raw.mm;
+                raw.dd = raw.dd;
+
+                raw.y = Number(get.yyyy);
+                raw.m = Number(get.mm);
+                raw.d = Number(get.dd);
+                break;
+            case 'unix':
+                var get = unixToRaw(get);
+                raw.y = get.y;
+                raw.m = get.m;
+                raw.d = get.d;
+                break;
+            case 'iso':
+                var get = isoToRaw(get);
+                raw.y = get.y;
+                raw.m = get.m;
+                raw.d = get.d;
+                break;
+            default:
+                return console.error('Unknown type sent: '+type);
+                break;
         }
 
-        //Parse Unix timestamps
-        if(typeof str === 'number' || countDigitsInNumber(parseInt(str)) === str.length){
-            if(str.length === 10)
-                str = str + '000';
-            var today = new Date(Number(str));
-            return pad(2,(today.getUTCMonth()+1),'0')+'-'+pad(2,today.getUTCDate(),'0')+'-'+today.getUTCFullYear();
+        /*** 3. Convert universally. ***/
+
+        //Unix from raw
+        raw.unix = Date.UTC(raw.y, raw.m-1, raw.d);  
+
+        //raw padded from raw
+        raw.yyyy = pad( 4, String(raw.y), new Date().getUTCFullYear() );
+        raw.mm   = pad( 2, String(raw.m),'0' );
+        raw.dd   = pad( 2, String(raw.d),'0' );
+
+        //iso from raw padded
+        raw.iso = raw.yyyy+'-'+raw.mm+'-'+raw.dd;
+
+        //human
+        raw.human = exports.date.humanize(iso,'YYYY-MM-DD');
+
+        return raw;
+
+    },
+    identify: function(get){
+        //Empty, null or undefined
+        if(!get){
+            return 'empty';
+
+        //Array
+        }else if(Array.isArray(get)){
+            return console.error('Arrays not allowed', get);
+
+        //Object with syntax
+        }else if(typeof get === 'object'){
+            var type = 'empty';
+
+            if(get.y && get.m && get.d)
+                return 'raw';
+            
+            if(get.yyyy && get.mm && get.dd)
+                return 'raw-p';
+
+            if(get.iso)
+                type = 'iso';
+
+            if(get.unix)
+                type = 'unix';
+                
+            return type;
+
+        //Number or String
+        }else if(typeof get === 'number' || typeof get === 'string'){
+            get = String(get);
+            if(countDigitsInNumber(parseInt(str)) === str.length){
+                return ['unix'];
+            }
+            return ['string'];
+
+        //???
+        }else{
+            return console.error('Unknown type not allowed', get);
         }
 
-        //Reject invalid types
-        if(typeof str != 'string'){ return console.error('Got a '+typeof str+' instead of a string', str); }
-
-        //Reject bad formats, reject time
-        var iso = new Date(str);
-        if(iso === 'Invalid Date'){ return console.error('In parse.date,'+str+' is an invalid date format.'); }
-
-        //Reject time
-        if(str.match(':')){return console.error('Got a suspected time instead of a date string -- cannot contain colons'); }    
-
-        
-
-        //Use dash separators
-        str = str.replace(/[\s\\\/\.-]/g, '-');
-
-        //Add year if missing eg: MM-DD becomes MM-DD-YYYY
-        if(str.split('-').length === 2){
-            str = str + (new Date().getFullYear());
-        }
-
-        //Grab month, day, year
-        var array = str.match(/\d+/g);
-
-        if(!array){return console.error('Date string expecting numbers',str);}
-        if(array.length > 3){return console.error('Too many placeholders in date string',str);}
-        if(array.length < 3){return console.error('Not enough placeholders in date string',str);}
-        var m = Number(array[0]);
-        var d = Number(array[1]);
-        var y = Number(array[2]);
-
-        if(m > 1000 && m < 6000){
-            //Assume correct ISO format YY-MM-DD
-            y = array[0];
-            m = array[1];
-            d = array[2];
-        }
-
-
-        //Reject out of range dates
-        if(d <= 0 || d >= 32){
-            return console.error('days must be between 1 and 31. instead got: '+ d+' str:'+str);
-        }
-        if(m <= 0 || m >= 13){
-            return console.error('months must be between 1 and 12. instead got: '+ m+' str:'+str);
-        }
-
-        //Convert YY to YYYY
-        if(String(y).length == 2){
-            var y1 = String(y);
-            var y2 = String(new Date().getFullYear());
-            y = y2[0]+y2[1]+y1[0]+y1[1];
-        }
-
-        //Output correct ISO 8601: YYYY-MM-DD
-        //example:                 2016-07-11
-        return String(y)+'-'+
-        pad(2,String(m),'0')+'-'+
-        pad(2,String(d),'0');
-
-        function countDigitsInNumber(num){
-            return Math.log(num) * Math.LOG10E + 1 | 0;
-        }
     },
     forceCurrentWeek: function(str){
        str = exports.date.iso(str);
@@ -405,3 +453,124 @@ exports.phone = function(str){
     //2. Prepend country code if too short.
     return str;
 };
+
+
+
+function countDigitsInNumber(num){
+    return Math.log(num) * Math.LOG10E + 1 | 0;
+}
+
+
+
+
+function isoToRaw(iso){
+    //Parses dates into an object containing year, month, day.
+    //str is a string in the form:
+    //MM-DD
+    //MM-DD-YY
+    //MM-DD-YYYY
+    //YYYY-MM-DD
+    //MM/DD
+    //MM\DD
+    //MM DD
+
+
+    /*** 1. Reject bads ***/
+    //Reject empty
+    if(!str){
+        return console.error('String cannot be empty or null');
+    }
+
+    //Reject invalid types
+    if(typeof str != 'string'){ return console.error('Got a '+typeof str+' instead of a string', str); }
+
+    //Reject bad formats, reject time
+    var iso = new Date(str);
+    if(iso === 'Invalid Date'){ return console.error('In parse.date,'+str+' is an invalid date format.'); }
+
+    //Reject time
+    if(str.match(':')){return console.error('Got a suspected time instead of a date string -- cannot contain colons'); }    
+
+
+
+    /*** 2. Parse ***/
+    //Use dash separators
+    str = str.replace(/[\s\\\/\.-]/g, '-');
+
+    //Add year if missing eg: MM-DD becomes MM-DD-YYYY
+    if(str.split('-').length === 2){
+        str = str + (new Date().getUTCFullYear());
+    }
+
+    //Grab month, day, year
+    var array = str.match(/\d+/g);
+
+    if(!array){return console.error('Date string expecting numbers',str);}
+    if(array.length > 3){return console.error('Too many placeholders in date string',str);}
+    if(array.length < 3){return console.error('Not enough placeholders in date string',str);}
+    var m = Number(array[0]);
+    var d = Number(array[1]);
+    var y = Number(array[2]);
+
+    if(m > 1000 && m < 6000){
+        //Assume correct ISO format YY-MM-DD
+        y = array[0];
+        m = array[1];
+        d = array[2];
+    }
+
+
+    //Reject out of range dates
+    if(d <= 0 || d >= 32){
+        return console.error('days must be between 1 and 31. instead got: '+ d+' str:'+str);
+    }
+    if(m <= 0 || m >= 13){
+        return console.error('months must be between 1 and 12. instead got: '+ m+' str:'+str);
+    }
+
+    //Convert YY to YYYY
+    if(String(y).length == 2){
+        var y1 = String(y);
+        var y2 = String(new Date().getUTCFullYear());
+        y = y2[0]+y2[1]+y1[0]+y1[1];
+    }
+
+    /*** 3. Output raw ***/
+
+    //Output correct ISO 8601: YYYY-MM-DD
+    //example:                 2016-07-11
+    return {
+        y: Number(y),
+        m: Number(m),
+        d: Number(d),
+    };
+}
+
+
+function unixToRaw(unix){
+    //unixToRaw f()
+    //converts a unix string to an object containing year, month, day.
+    //Assumes a string or number at least 10 digits long.
+    //13 digit long strings will be considered in milliseconds and converted to seconds.
+
+    unix = Number(unix);
+
+    //Convert millisecs to secs (assuming we don't need dates in the year 2283)
+    if(countDigitsInNumber(unix) === 13){
+        unix = unix / 1000;
+    }
+
+    var date = new Date(unix);
+    return {
+        y: Number(date.getUTCFullYear()),
+        m: Number(date.getUTCMonth()+1),
+        d: Number(date.getUTCDate()),
+    };
+}
+function 
+    //isoToRaw
+    //converts an iso8601 string 
+    //Assumes a string with correct date formatting.
+
+    return;
+}
