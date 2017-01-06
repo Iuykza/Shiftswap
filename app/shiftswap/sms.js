@@ -16,6 +16,7 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
     get = get || {};
 
     var number   = get.number;
+    var uid      = db.getUserByPhone(number);
     var body     = S(get.body).toLowerCase().collapseWhitespace().s;
     var commands = [
         {
@@ -35,7 +36,7 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
                 });
                 exports.send(number, body);
             },  
-        }
+        },
         {
             name:'today',
             alias:['now'],
@@ -66,6 +67,12 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
 
             },
         },
+        {
+            name: 'shifts',
+            f: ()=>{
+
+            },
+        }
     ];
 
     //Match their text to the list of commands above
@@ -75,7 +82,7 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
             body = S(body).chompLeft(command.name+' ').s;
             params = body.split(' ');
             command.f(params);
-            break;
+            return;
         }
     }
     //Reaching this point means nothing matched
