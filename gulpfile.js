@@ -175,6 +175,7 @@ gulp.task('copy', function(){
 		'js/stats.js',
 		'js/news.js',
 		'js/panel-admin.js',
+		'js/http-sender.js',
 		'font',
 		'template',
 		'robots.txt',
