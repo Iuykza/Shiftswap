@@ -5,11 +5,6 @@ var mongoose = require("mongoose"),
 
 var Schema = mongoose.Schema;
 var schema = {
-    timespan: Schema({
-        start:    Date,   
-        end:      Date, 
-        val:      Array,     //array of days 
-    }),
     day: Schema({
         date:     Object,   //ISO timestamp
         sids:     Array,     //array of schedule data
@@ -21,7 +16,7 @@ var schema = {
 
         time:     Array,     //array of clock ins and outs
         detail:   Array,     //string or array describing the role
-        access:   String,    //Manager or Floor schedule
+        access:   String,    //"M"anager or "F"loor schedule
         tags:     Array,     //array of tags For Trade, For Sell, Just Traded, etc...
     }),
     trade: Schema({
@@ -63,11 +58,7 @@ var schema = {
         undo:     Object,   //the data before the change
     }),
     site: Schema({
-        uidCount: Number,
-        hidCount: Number,
-        sidCount: Number,
-
-        siteCount: Number,
+        siteCount: Number,    //Number of times the site was visited
 
         newsurl: String,      //the URL of a wordpress site to pull posts from
     }),
@@ -82,7 +73,10 @@ var model = {
     Schedule: mongoose.model('Schedule' , schema.schedule ),
 }
 
-schema.trade.plugin(autoIncrement.plugin, {model: 'Trade', field: 'tid'});
+schema.trade.plugin(autoIncrement.plugin, {model: 'Trade',    field: 'tid'});
+schema.trade.plugin(autoIncrement.plugin, {model: 'History',  field: 'hid'});
+schema.trade.plugin(autoIncrement.plugin, {model: 'User',     field: 'uid'});
+schema.trade.plugin(autoIncrement.plugin, {model: 'Schedule', field: 'sid'});
 
 
 exports.schema = schema;
