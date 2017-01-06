@@ -9,7 +9,9 @@ header .jumbotron{
   border-bottom: 2px solid #EEE;
   margin-bottom: 0;
 }
-
+header .jumbotron div{
+  margin-left: 10px;
+}
 
 
 
