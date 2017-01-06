@@ -1,7 +1,60 @@
+[Josh @ 2017-01-06 01:42:23] 
+
+Finished first draft of parse.date.convertToRaw()
+
+convertToRaw is an improvement of the iso() function.  It converts everything to a raw {y,m,d} and then back to each of the formats and adds a human readable string.  Any already universal object will be detected and returned back.
+
+Accepts
+- ISO
+- Unix
+- Raw
+- Raw padded
+
+
+[Josh @ 2017-01-05 11:02:42] 
+
+TODO: possible fix for Twilio Error - 11200 HTTP retrieval failure.  Route doesn't complete for sms.post.  Use res.send();
+
+
+[Josh @ 2017-01-05 03:03:59] 
+
+Progress unifying date formats.
+
+
+[Josh @ 2017-01-04 19:47:28] 
+
+!! can check for falsey and truthy values.
+
+
+!!true  = true
+!!' '   = true
+!!{}    = true
+!![]    = true
+!!24    = true
+
+!!false = false
+!!0     = false
+!!NaN   = false
+!!null  = false
+!!''    = false
+!!""    = false
+!!undefined = false
+
+
+
+
+[Josh @ 2017-01-04 18:53:33] 
+
+FT-REQ:  Log traffic by date and time.
+Find pattern for highest traffic period during week and time, then ensure stability for that period.
+
+
+
 [Josh @ 2017-01-04 02:53:51] 
 
 TODO: unify parse.date formats.  Convert everything to raw.  Allow raw to convert backwards.
- toRaw //figures out which.  Convert to utc. returns as raw. 
+
+ toRaw    //figures out which.  Convert to utc. returns as raw. 
  rawToIso
  rawToUnix
  rawToHuman
@@ -10,7 +63,7 @@ TodayAsRaw
 WorkWeekStart
 identify
 
-raw = {y, m, d, yyyy, mm, dd, unix, iso, human};
+raw = {y, m, d, yyyy, mm, dd, unix, iso, human};  q
 
 
 
