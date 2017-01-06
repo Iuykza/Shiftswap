@@ -28,7 +28,8 @@ serverConfig = require('app/_config/server.json')
 
 exports.home = {
     welcome: (req, res)=>{
-        res.send("Welcome. You have connected to the Shiftswap API.");
+        //res.send("\"Welcome. You have connected to the Shiftswap API.\"");
+        res.send(JSON.stringify(parse.date.unixToday()));
     },
     time: (req, res)=>{
         var m = moment.utc();
@@ -56,20 +57,17 @@ exports.user = {
         console.log("POST user");
 
         //Validate
-        post.access = post.access || "";
+        post.access = post.access || "f";
 
         //Parsing
-        post.access = minifyAccess(post.access, post.spec);
+        post.access = minifyAccess(post.access, post.spectator);
 
-        if(post.spec === 1)
+        if(post.spectator)
             post.access.push("s");
 
-        //Create
-        createID('u', createUserDB);
 
         function createUserDB(err, uid){
             new model.User({
-                uid:    uid,
                 name:   post.full   || "",
                 nick:   post.nick   || "",
                 access: post.access || ["f"],
@@ -191,16 +189,16 @@ exports.schedule = {
                 console.error(err);
             }
 
-            new model.Schedule({
+            db.schedule.insert({
                 sid:    sid,
                 uid:    post.uid,
                 time:   post.time  || null,
                 detail: post.type  || null,
                 date:   post.date,
                 access: getAccess(post.type),
-            }).save(callbackSave);
+            }, callbackSave);
 
-            appendToDay(post.date, sid);
+            //appendToDay(post.date, sid);
 
             function getAccess(type){
                 type = typeof type==='string'? type : '';
@@ -240,7 +238,7 @@ exports.schedule = {
             }
 
 
-            logHistory("Normal|Created schedule "+post.time+" for user "+post.name, post, null);
+            //logHistory("Normal|Created schedule "+post.time+" for user "+post.name, post, null);
             res.send(JSON.stringify('saved'));
         };
     },
@@ -249,16 +247,16 @@ exports.schedule = {
     },
     get: (req, res)=>{
         var day = req.params.day; 
-        var list = [];
-        var find = {};
+        var uid = req.params.uid;
+        var access = req.params.access;
+
         if(day === undefined || day === ''){
             //No day selected, send full list.
+            console.log('day empty');
             find = {};
         }
         else{
             //Day found, send partial.
-            console.log('day',day, typeof day);
-            day = parse.date.multi(day);
             if(day){
                 console.log('GET schedule',day.human, day.unix);
                 find = {'date.unix': day.unix};
@@ -268,7 +266,17 @@ exports.schedule = {
             
         }
 
-        db.schedule.get(day, -7, find, function(err, docs){
+        var find = {};
+        if(!day)
+            day = parse.date.unixToday();
+        if(uid)
+            find.uid = uid;
+        if(access)
+            find.access = access[0];
+
+        db.schedule.find(day, -7, find, function(err, docs){
+            var list = [];
+
             if(err)
                 return console.error(err);
 
@@ -277,12 +285,9 @@ exports.schedule = {
                 list.push(d); //copy
             });
 
-            if(docs.length === 0){ //notify if nothing was found.
-                return res.status(404);
-            }
-
             res.send(list); //send
         });
+
     },
     delete: (req, res)=>{
 
