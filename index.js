@@ -44,11 +44,15 @@ app.get ('/'                                             , home.welcome)    // s
 .delete ('/'+VERSION+'/user(s)?/:uid'                    , user.del)        // delete a user (auth)
 
 //WARN: Order matters.  More specific paths must stay on top.
-.get    ('/'+VERSION+'/schedule(s)?/access/:access/day/:day' , schedule.get)   // get  x day manager or floor schedule
-.get    ('/'+VERSION+'/schedule(s)?/access/:access'          , schedule.get)   // get 14 day manager or floor schedule
-.get    ('/'+VERSION+'/schedule(s)?'                     , schedule.get)   // get 14 day floor schedule
-.get    ('/'+VERSION+'/schedule(s)?/uid/:uid/day/:day'   , schedule.userid) // get  x day schedule of specific user
-.get    ('/'+VERSION+'/schedule(s)?/uid/:uid'            , schedule.userid) // get 14 day schedule of specific user
+//Day, count, access.
+//uid will always be month.
+//access will be 
+.get    ('/'+VERSION+'/schedule(s)?/access/:access/day/:day' , schedule.get)// get  x day     x schedule
+.get    ('/'+VERSION+'/schedule(s)?/access/:access'      , schedule.get)    // get 14 day     x schedule
+.get    ('/'+VERSION+'/schedule(s)?'                     , schedule.get)    // get 14 day floor schedule
+
+.get    ('/'+VERSION+'/schedule(s)?/uid/:uid/day/:day'   , schedule.userid) // get    x month schedule of specific user
+.get    ('/'+VERSION+'/schedule(s)?/uid/:uid/'           , schedule.userid) // get this month schedule of specific user
 .post   ('/'+VERSION+'/schedule(s)?'                     , schedule.post)   // create schedule (auth)
 .delete ('/'+VERSION+'/schedule(s)?/:sid'                , schedule.delete) // delete schedule (auth)
 
