@@ -184,70 +184,7 @@ describe('time()', function(){
 
 
 
-
-describe('date.iso()', function(){
-    var date = parse.date.iso;
-    
-    it('should fail to parse object', function(){
-        expect(date({})).to.not.be.ok;
-    });
-
-    it('should fail to parse letter A', function(){
-        expect(date('A')).to.not.be.ok;
-    });
-
-    it('should fail to parse time 5:30', function(){
-        expect(date('5:30')).to.not.be.ok;
-    });
-
-    it('should parse 10-3-15 as 2015-10-03', function(){
-        expect(date('10-3-15')).to.equal('2015-10-03');
-    });
-
-    it('should parse 2015-10-3 as 2015-10-03', function(){
-        expect(date('2015-10-3')).to.equal('2015-10-03');
-    });
-
-    it('should parse no argument as today', function(){
-        var d = new Date();
-        var today = pad(2,d.getUTCFullYear() ,'0')+'-'+
-                    pad(2,d.getUTCMonth()+1  ,'0')+'-'+
-                    pad(2,d.getUTCDate()     ,'0');
-        expect(date()).to.equal(today);
-    });
-
-    it('should parse unix timestamp 994827600000 as 2001-07-11', function(){
-        expect(date(994827600000)).to.equal('2001-07-11');
-    });
-
-});
-
-
-
-
-
-
-
-
-describe('date.multi()', function(){
-    var multi = parse.date.multi;
-
-    it('should parse 10-3-15 as 2015-10-03, 1443830400, and October 10th 2015', function(){
-        expect(multi('10-3-15')).to.eql({
-            iso:   '2015-10-03',
-            unix:  1443848400,
-            human: 'Saturday, October 3rd 2015',
-        });
-    });
-});
-
-
-
-
-
-
-
-
+/*
 
 
 describe('date.forceCurrentWeek()', function(){
@@ -257,6 +194,22 @@ describe('date.forceCurrentWeek()', function(){
         expect(force('09-22-16')).to.equal('2016-09-28');
     });
 });
+
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -332,4 +285,201 @@ describe('military.pad()', function(){
     });
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+describe('date.identify()', function(){
+    var id = parse.date.identify;
+
+    it('should parse \'\' as empty', function(){
+        expect(id('')).to.equal('empty');
+    });
+    it('should parse \"\" as empty', function(){
+        expect(id("")).to.equal('empty');
+    });
+    it('should parse undefined as empty', function(){
+        expect(id(undefined)).to.equal('empty');
+    });
+    it('should parse null as empty', function(){
+        expect(id(null)).to.equal('empty');
+    });
+    it('should parse NaN as empty', function(){
+        expect(id('')).to.equal('empty');
+    });
+    it('should parse false as empty', function(){
+        expect(id('')).to.equal('empty');
+    });
+    it('should fail to parse []', function(){
+        expect(id([])).to.not.be.ok;
+    });
+    it('should parse string 1483694977691 as unix', function(){
+        expect(id('1483694977691')).to.equal('unix');
+    });
+    it('should parse string 1483695066 as unix', function(){
+        expect(id('1483695066')).to.equal('unix');
+    });
+    it('should parse number 1313694977691 as unix', function(){
+        expect(id(1313694977691)).to.equal('unix');
+    });
+    it('should parse number 1313695066 as unix', function(){
+        expect(id(1313695066)).to.equal('unix');
+    });
+    it('should parse number 1 as unix', function(){
+        expect(id(1)).to.equal('unix');
+    });
+    it('should parse number -1 as negative', function(){
+        expect(id(-1)).to.equal('negative');
+    });
+    it('should parse number -10.1 as negative', function(){
+        expect(id(-10.1)).to.equal('negative');
+    });
+    it('should parse 1-1-17 as iso', function(){
+        expect(id('1-1-17')).to.equal('iso');
+    });
+    it('should parse 01-01-2017 as iso', function(){
+        expect(id('01-01-2017')).to.equal('iso');
+    });
+    it('should parse 01-01-2017 as iso', function(){
+        expect(id('01-01-2017')).to.equal('iso');
+    });
+    it('should parse {y,m,d,yyy,mm,dd,unix,iso,human} as full', function(){
+        expect(id({
+            y: 1,
+            m: 1,
+            d: 1,
+            yyyy: 1,
+            mm: 1,
+            dd: 1,
+            unix: 1,
+            iso: 1,
+            human: 1
+        })).to.equal('full');
+    });
+    it('should parse {y,m,d} as raw', function(){
+        expect(id({
+            y: 1,
+            m: 1,
+            d: 1,
+        })).to.equal('raw');
+    });
+    it('should parse {y,m,d,unix} as raw', function(){
+        expect(id({
+            y: 1,
+            m: 1,
+            d: 1,
+            unix: 1,
+        })).to.equal('raw');
+    });
+    it('should parse {yyyy,mm,dd} as raw-p', function(){
+        expect(id({
+            yyyy: 1,
+            mm: 1,
+            dd: 1,
+        })).to.equal('raw-p');
+    });
+    it('should parse {iso} as iso', function(){
+        expect(id({
+            iso: 1,
+        })).to.equal('iso');
+    });
+    it('should parse {unix} as unix', function(){
+        expect(id({
+            unix: 1,
+        })).to.equal('unix');
+    });
+    it('should parse {potato} as empty', function(){
+        expect(id({potato: 1})).to.equal('empty');
+    });
+
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+describe('date.convertToRaw()', function(){
+    var raw = parse.date.convertToRaw;
+
+    it('should parse \'\' as -1', function(){
+        expect(raw('')).to.equal(-1);
+    });
+    it('should parse \"\" as -1', function(){
+        expect(raw("")).to.equal(-1);
+    });
+    it('should parse undefined as -1', function(){
+        expect(raw(undefined)).to.equal(-1);
+    });
+    it('should parse null as -1', function(){
+        expect(raw(null)).to.equal(-1);
+    });
+    it('should parse NaN as -1', function(){
+        expect(raw('')).to.equal(-1);
+    });
+    it('should parse false as -1', function(){
+        expect(raw('')).to.equal(-1);
+    });
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

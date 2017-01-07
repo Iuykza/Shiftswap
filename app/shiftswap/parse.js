@@ -263,6 +263,8 @@ exports.date = {
 
         /*** 1. Get type ***/
         var type = exports.date.identify(get);
+        console.log(exports.date.identify, type);
+
 
         if(!type){
             return;
@@ -335,28 +337,41 @@ exports.date = {
         //Object with syntax
         }else if(typeof get === 'object'){
             var type = 'empty';
+            var has = function(props){
+                if(typeof props === 'string')
+                    props = [props];
+                return props.every( (prop)=> get.hasOwnProperty(prop) );
+            }
 
-            if(get.y && get.m && get.d)
+            if( has(['y','m','d','yyyy','mm','dd','unix','iso','human']) )
+                return 'full';
+
+            if( has(['y','m','d']) )
                 return 'raw';
             
-            if(get.yyyy && get.mm && get.dd)
+            if( has(['yyyy','mm','dd']) )
                 return 'raw-p';
 
-            if(get.iso)
+            if( has('iso') )
                 type = 'iso';
 
-            if(get.unix)
+            if( has('unix') )
                 type = 'unix';
                 
             return type;
 
         //Number or String
         }else if(typeof get === 'number' || typeof get === 'string'){
-            get = String(get);
-            if(countDigitsInNumber(parseInt(str)) === str.length){
-                return ['unix'];
+
+            if(Number(get) < 0){
+                return 'negative';
             }
-            return ['string'];
+
+            get = String(get);
+            if(countDigitsInNumber(parseInt(get)) === get.length){
+                return 'unix';
+            }
+            return 'iso';
 
         //???
         }else{
@@ -566,11 +581,4 @@ function unixToRaw(unix){
         m: Number(date.getUTCMonth()+1),
         d: Number(date.getUTCDate()),
     };
-}
-function 
-    //isoToRaw
-    //converts an iso8601 string 
-    //Assumes a string with correct date formatting.
-
-    return;
 }
