@@ -14,12 +14,10 @@ $('#send').click(function(e){
     var server = $val('address');
     var path   = $val('path');
     var method = $val('method');
-    var body = $val('body');
+    var body = JSON.parse($val('body'));
 
     var url = server+path;
-    var jax;
-
-    $.ajax({
+    var jax = $.ajax({
         url: url,
         method: method,
         data: body,
