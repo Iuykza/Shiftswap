@@ -28,8 +28,8 @@ serverConfig = require('app/_config/server.json')
 
 exports.home = {
     welcome: (req, res)=>{
-        //res.send("\"Welcome. You have connected to the Shiftswap API.\"");
-        res.send(JSON.stringify(parse.date.unixToday()));
+        res.send("\"Welcome. You have connected to the Shiftswap API.\"");
+        //res.send(JSON.stringify(parse.date.unixToday()));
     },
     time: (req, res)=>{
         var m = moment.utc();
@@ -392,15 +392,24 @@ exports.reward = {
 exports.sms = {
     poll: (req, res)=>{
         console.log('POST sms');
-        var number = req.body.From;
-        var body =    req.body.Body;
 
-        var body = sms.parseIncoming(req, res, db, parse, {
+        var number = req.body.From;
+        var body   = req.body.Body;
+
+        if(!number){
+            var msg = 'SMS rejected because no phone number given.';
+            res.status(406).send(msg);
+            return console.error(msg);
+        }
+
+        var sent = sms.parseIncoming(req, res, db, parse, {
             number: number,
             body: body,
         });
+        console.log(`Num: ${number}, Recv: ${body}, Send: ${sent}`);
+        
 
-        console.log(req.body);
+        res.sendStatus(200);
     },
     send: (req, res)=>{
         console.log('GET sms');
