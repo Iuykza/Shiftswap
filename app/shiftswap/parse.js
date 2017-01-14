@@ -266,61 +266,76 @@ exports.date = {
         console.log(exports.date.identify, type);
 
 
+        
         if(!type){
             return;
         }
+        
         if(type === 'empty'){//empty is used case by case
             return -1;
         }
+        
         if(type === 'full'){ //echo if correct
             return get;
         }
+        
 
-        /*** 2. Salvage. ***/
+        /*** 2. Salvage everything to raw. ***/
         switch(type){
             case 'raw':
+               raw.y = String(get.y);
+               raw.m = String(get.m);
+               raw.d = String(get.d);
                 break;
             case 'raw-p':
-                raw.yyyy = get.yyyy;
-                raw.mm = raw.mm;
-                raw.dd = raw.dd;
+                raw.yyyy = String(get.yyyy);
+                raw.mm   = String(get.mm);
+                raw.dd   = String(get.dd);
 
-                raw.y = Number(get.yyyy);
-                raw.m = Number(get.mm);
-                raw.d = Number(get.dd);
+                raw.y = String(get.yyyy);
+                raw.m = String(get.mm);
+                raw.d = String(get.dd);
                 break;
             case 'unix':
-                var get = unixToRaw(get);
-                raw.y = get.y;
-                raw.m = get.m;
-                raw.d = get.d;
+                var get = unixToRaw(get.unix || get);
+                raw.y = String(get.y);
+                raw.m = String(get.m);
+                raw.d = String(get.d);
                 break;
             case 'iso':
-                var get = isoToRaw(get);
-                raw.y = get.y;
-                raw.m = get.m;
-                raw.d = get.d;
+                var get = isoToRaw(get.iso || get);
+                raw.y = String(get.y);
+                raw.m = String(get.m);
+                raw.d = String(get.d);
                 break;
             default:
                 return console.error('Unknown type sent: '+type);
                 break;
         }
 
-        /*** 3. Convert universally. ***/
+        /*** 3. Convert raw to everything. ***/
+        //Add full year to raw.y
+        console.log(raw.y);
+        if(String(raw.y).length === 2){
+            var curr = String(raw.y);
+            var temp = String(new Date().getUTCFullYear());
+            raw.y = temp[0] + temp[1] + curr[0] + curr[1];
+        }
+        console.log(raw.y);
 
         //Unix from raw
-        raw.unix = Date.UTC(raw.y, raw.m-1, raw.d);  
+        raw.unix = Date.UTC(raw.y, Number(raw.m)-1, raw.d) / 1000;  
 
         //raw padded from raw
-        raw.yyyy = pad( 4, String(raw.y), new Date().getUTCFullYear() );
-        raw.mm   = pad( 2, String(raw.m),'0' );
-        raw.dd   = pad( 2, String(raw.d),'0' );
+        raw.yyyy = raw.y;
+        raw.mm   = pad( 2, raw.m,'0' );
+        raw.dd   = pad( 2, raw.d,'0' );
 
         //iso from raw padded
         raw.iso = raw.yyyy+'-'+raw.mm+'-'+raw.dd;
 
         //human
-        raw.human = exports.date.humanize(iso,'YYYY-MM-DD');
+        raw.human = exports.date.humanize(raw.iso,'YYYY-MM-DD');
 
         return raw;
 
@@ -478,7 +493,7 @@ function countDigitsInNumber(num){
 
 
 
-function isoToRaw(iso){
+function isoToRaw(str){
     //Parses dates into an object containing year, month, day.
     //str is a string in the form:
     //MM-DD
@@ -493,7 +508,7 @@ function isoToRaw(iso){
     /*** 1. Reject bads ***/
     //Reject empty
     if(!str){
-        return console.error('String cannot be empty or null');
+        return console.error('ISO cannot be empty or null');
     }
 
     //Reject invalid types
@@ -555,9 +570,9 @@ function isoToRaw(iso){
     //Output correct ISO 8601: YYYY-MM-DD
     //example:                 2016-07-11
     return {
-        y: Number(y),
-        m: Number(m),
-        d: Number(d),
+        y: y,
+        m: m,
+        d: d,
     };
 }
 

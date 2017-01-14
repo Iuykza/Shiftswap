@@ -1,7 +1,109 @@
+[Josh @ 2017-01-14 04:33:43] 
+
+TODO: express-sanitizer
+
+FT-REQ: Link users to data anonymously
+
+
+
+
+[Josh @ 2017-01-13 04:26:51] 
+
+Added ajax call to shiftswap within Ethos
+
+I used jQuery inside the Phantom browser like normal and it only took about 5 minutes to set up.  Good thing I brushed up on my jQuery when I wrote that Http-sender page.  However, the backend isn't set up to understand this type of call, even though I formatted it perfectly as it appears in the database.  I wrote the backend in tandem to work with the shiftswap website, and they only work with each other.
+
+So once again, I have to toss out more code.  The POST schedule method needs to be abstracted, and the data the website sends needs to be more structured.  Because the data comes from a form, all of the form inputs get sent in the response.  Messy.
+
+TODO:
+- Website needs middle code to parse the form input before the response
+- Backend needs to be abstracted, move methods to db.js
+- db.schedule.post should handle both a single object and an array
+- Find a way to run Ethos in 6 hour increments
+
+
+[Josh @ 2017-01-11 14:42:56] 
+
+FT-REQ: Improvements to anonymity of statistics program.
+
+Aggregation does indeed help keep the statistics program anonymous, but if one were to watch the page for each change there is a possibility they could identify a person by process of elimination.
+
+For example,
+
+1. Each form submitted to the stat program sends a batch of data all at once.
+2. If the stats page was watched frequently enough, previous versions of the page could be compared to pick out the individual batches.
+3. The batch could then be analyzed.  Look at what was submitted.  "Who here is a twenty year old male?"  Through process of elimination this could be narrowed down to maybe one or two people.
+4. Make assumptions linking that specific person to some of the more private data in the batch.
+
+
+To oppose this watch-and-guess tactic,  the statistics should be released unreliably.  I could send the batches off in pairs, or instead send individual data randomly.  This would make it much much harder to pick out what belongs to who.k
+
+
+[Josh @ 2017-01-10 18:53:57] 
+
+Improvements to Ethos
+- Refactored code into screens
+- Replaced settimeout with onUrlChange and onLoadFinished
+- Added data parser
+- Combined like dates with their times -- a shift with a break
+- Removed :30 minute break spans from data
+
+TODO: Find a way to connect Ethos to the API.
+
+I need to make an Ajax call from Phantomjs to my API server.  Unfortunately Phantomjs runs in its own environment.  I can't require HTTP.
+
+Instead I have to use what it offers, and it offers jQuery.  I suppose I could use jQuery's Ajax methods.  No idea if it is supported inside this environment.  I could also use vanilla JS to make an xhr.
+
+If it isn't I'll have to use the Node version of Phantom and rewrite the code entirely.  It may be for the best.
+
+[Josh @ 2017-01-10 17:19:57] 
+
+Progress db.schedule.replaceSection
+
+[Josh @ 2017-01-10 11:44:39] 
+
+
+Re: No identity data problem.
+
+I found an alternative way to address this with db.schedule.replaceSection.  This takes in an array of shifts that cover a length of time.  The data that is inside Shiftswap that matches this timespan is deleted and replaced with the new.  In short it replaces a section of shiftswap with given data, overwriting what was within that timespan.
+
+The downside to this is anything Shiftswap does will get ignored.  However if Shiftswap is used to both get and create shifts, Kronos would always be correct and updating from it wouldn't be a bad idea.
+
+Right now, I'm only worried about getting data onto Shiftswap without duplication.  I'm sure a true solution will come to me later.
+
+
+[Josh @ 2017-01-09 04:26:34] 
+
+Progress proofing parse.date.convertToRaw
+renamed db.user.getUserByX methods to db.user.getByX
+
+
+[Josh @ 2017-01-07 14:12:15] 
+
+TODO: no identity data problem.
+
+After reading through the documentation, I found schedules are retrieved through a date span, however there is no unique identifier for schedule data.  Problem with this is what the Shiftswap DB has isn't necessairly the same as the Kronos DB.  Once I get schedule data from Kronos and merge with Shiftswap, I won't be able to tell the two apart again.
+
+If I only make one call for one date span, I can get away with this.  However whatever change managers make to the Kronos end will not reflect in Shiftswap.
+
+I could save a second DB dedicated solely to what Kronos has:
+
+1.  Make call to Kronos for schedules
+2.  Compare Kronos response to the 2nd DB.  Update 1st DB based on perceived changes with 2nd DB.
+3.  Repeat step 1.
+
+No idea how well this would work in the real world.
+
+
+[Josh @ 2017-01-07 04:57:19] 
+
+Twilio fix appears to have worked for now.  Don't appear to be getting that message.
+
 [Josh @ 2017-01-06 03:13:20] 
 
 Bulletproofed parse.date.identify()
 Progress parse.date.convertToRaw()
+Added twilio fix
 
 Unit testing process
 

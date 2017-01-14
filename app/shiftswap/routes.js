@@ -1,15 +1,7 @@
 //routes.js
 
-var exports = module.exports = {
-    home:     {},
-    user:     {},
-    stats:    {},
-    schedule: {},
-    trade:    {},
-    history:  {},
-    sms:      {},
-    voice:    {},
-};
+var exports = module.exports = {};
+
 var _  = require('lodash'),
 fuzzy  = require('fuzzy'),
 os     = require('os'),
@@ -152,93 +144,38 @@ exports.stats = {
 exports.schedule = {
     post: (req, res)=>{
         console.log('POST schedule');
-
         var post = req.body || {};
+        if(!post.time || !post.uid || !post.date || !post.access)
+            return res.status(400).send('Body must include uid, date, access, and time.');
+        if(!Array.isArray(post.time))
+            return res.status(400).send('time must be an array');
+        if(typeof post.uid != 'number')
+            return res.status(400).send('uid must be a number');
+        if(post.detail && typeof post.uid != 'string')
+            return res.status(400).send('detail must be a string');
+        if(post.access != 'm' && post.access != 'f')
+            return res.status(400).send('access must be a string either m or f, for manager and floor');
 
-        //parsing
-        post.date      = parse.date.multi(post.date);
-        post.timestart = parse.time(post.timestart);
-        post.timeend   = parse.time(post.timeend);
+        db.schedule.insert({
+            uid:    post.uid,
+            time:   post.time,
+            detail: post.type,
+            date:   post.date,
+            access: getAccess(post.type),
+        }, callbackSave);
 
-        var uid = post.uid;
-
-        var time = [];
-        time.push(post.timestart);
-
-        if(typeof post.timebreak != 'undefined'){
-            post.timebreak = parse.time(post.timebreak);
-            post.timebrkrt = parse.military.add(post.timebreak, '0030');
-            time.push(post.timebreak);
-            time.push(post.timebrkrt);
+        function getAccess(type){
+            type = typeof type==='string'? type : '';
+            if(type.includes('manager')) return 'm';
+            return 'f';
         }
 
-        time.push(post.timeend);
-        post.time = time;
-
-        callbackName(post.uid);
-
-        function callbackName(doc){
-            var uid = doc.uid;
-            post.name = doc.name;
-            post.uid  = (typeof uid === 'number')? uid : post.uid;
-
-            callbackID(false, -1);
-        }
-        function callbackID(err, sid){
-            if(err){
-                console.error(err);
-            }
-
-            db.schedule.insert({
-                sid:    sid,
-                uid:    post.uid,
-                time:   post.time  || null,
-                detail: post.type  || null,
-                date:   post.date,
-                access: getAccess(post.type),
-            }, callbackSave);
-
-            //appendToDay(post.date, sid);
-
-            function getAccess(type){
-                type = typeof type==='string'? type : '';
-                if(type.includes('manager')) return 'm';
-                return 'f';
-            }
-        };
-        function appendToDay(date, sid){ //Adds this schedule data to that particular day.
-            model.Day.findOne({date: date}, function(err, doc){
-                if(err){
-                    console.error(err);
-                    return res.send(err);
-                }
-
-                if(doc){ //exists, update this day.
-                    doc.sids.push(sid);
-                    var update = {
-                        sids: doc.sids
-                    };
-                    model.Day.findOneAndUpdate({date: date}, update,
-                        err=> err? console.error('Couldn\'t update day', err) : null );
-                    console.log('updated');
-
-                }else{ //doesn't exist, create a new day.
-                    new model.Day({
-                        date: date,
-                        sids: [sid],
-                    }).save( err=> err? console.error('Couldn\'t create new day', err) : null );
-                }
-            });
-                
-        }
         function callbackSave(err, doc){
             if(err){
                 console.error(err);
                 return res.send(err);
             }
 
-
-            //logHistory("Normal|Created schedule "+post.time+" for user "+post.name, post, null);
             res.send(JSON.stringify('saved'));
         };
     },
@@ -398,7 +335,7 @@ exports.sms = {
 
         if(!number){
             var msg = 'SMS rejected because no phone number given.';
-            res.status(406).send(msg);
+            res.status(400).send(msg);
             return console.error(msg);
         }
 
