@@ -145,6 +145,11 @@ exports.schedule = {
     post: (req, res)=>{
         console.log('POST schedule');
         var post = req.body || {};
+
+        if(Array.isArray(post.body)){
+            return db.schedule.insert(post.body, callbackSave);
+        };
+
         if(!post.time || !post.uid || !post.date || !post.access)
             return res.status(400).send('Body must include uid, date, access, and time.');
         if(!Array.isArray(post.time))
