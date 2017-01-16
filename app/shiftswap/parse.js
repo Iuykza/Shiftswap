@@ -8,6 +8,9 @@ _          = require('lodash'),
 pad        = require('pad')
 ;
 
+const TIMEZONE_OFFSET_SECS = 21600;
+
+
 exports.json = {
     loose: (str)=>{
         if(typeof str === 'string' && typeof str != 'undefined')
@@ -248,7 +251,7 @@ exports.date = {
         format = format || 'MM-DD-YYYY'; 
         return moment(str,format).utc().format('dddd, MMMM Do YYYY');
     },
-    unixToday: function(str){
+    unixToday: function(){
         var today = new Date();
         return exports.date.makeUTC(today.getUTCFullYear(), today.getUTCMonth()+1, today.getUTCDate());
     },
@@ -470,11 +473,71 @@ exports.military = {
             'Object = {h,m} where h = hours and m = minutes.'
             );
         }
-    }
+    },
+    toStandard: function(str, shorten, end){
+        /*Accepts:
+        str = a military HHMM string, assuming valid data.
+        short = a boolean that determines if minutes 00 are removed.
+        end = a boolean that determines if the suffix am|pm is on the return string.  Defaults to true.
+
+        Returns:
+        a string in standard time using h:mm am|pm format.
+        */
+
+        if(typeof end === 'undefined'){
+            end = true;
+        }
+
+        console.log('toStandard ', str, end);
+
+        var hour = Number(str[0] + str[1]);
+        var min = str[2] + str[3];
+        var suffix = "";
+
+        //Add the am, pm suffix
+        if(end){
+            if(hour < 12){
+                suffix = 'am';
+            }else{
+                suffix = 'pm'
+            }
+        }
+
+        //change 1300, 1400, 1500 into 1pm, 2pm, 3pm ...
+        if(hour >= 13){
+            console.log(str, '', hour, typeof hour, hour%12);
+            hour = hour % 12;
+            console.log(hour);
+        }
+
+        if(shorten && min === '00'){
+            return `${hour}${suffix}`;
+        }else{
+            return `${hour}:${min}${suffix}`;
+        }
+    },
+
 };
 exports.schedule = {
-    pretty: function(schedule){
-        return schedule;
+    pretty: function(sched, enableLong){
+        if(objectIsEmpty(sched)){
+            return false;
+        }
+
+        var m = moment((sched.date.unix + TIMEZONE_OFFSET_SECS)*1000);
+        var stdTime = exports.military.toStandard;
+
+        var prettyStart  = stdTime(sched.time[0],true);
+        var prettyEnd    = stdTime(sched.time[sched.time.length-1],true,false);
+        var prettyDate   = m.calendar().split(' ')[0] +' '+ m.format('MMMM Do');
+        var prettyDetail = sched.detail[0];
+
+        var fromNow = m.fromNow();
+        var verb = [];
+        var tense = fromNow.substr(-3) === 'ago';
+
+        return `You ${tense? 'worked' : 'work'} ${prettyDate} from ${prettyStart} to ${prettyEnd} as ${prettyDetail}. `+
+               `This ${tense? 'was' : 'is'} ${fromNow}.`;
     },
 };
 exports.phone = function(str){
@@ -486,9 +549,22 @@ exports.phone = function(str){
 
 
 
+
+
+
+
 function countDigitsInNumber(num){
     return Math.log(num) * Math.LOG10E + 1 | 0;
 }
+
+function objectIsEmpty(obj){
+    return Object.getOwnPropertyNames(obj).length === 0;
+}
+
+function isUnixToday(unix){
+    return exports.date.unixToday() === Number(unix);
+}
+
 
 
 
@@ -575,6 +651,31 @@ function isoToRaw(str){
         d: d,
     };
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function unixToRaw(unix){

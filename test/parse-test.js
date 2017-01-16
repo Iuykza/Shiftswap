@@ -456,6 +456,37 @@ describe('date.convertToRaw()', function(){
     it('should parse false as -1', function(){
         expect(raw('')).to.equal(-1);
     });
+    it('should parse {y,m,d,yyy,mm,dd,unix,iso,human} as self', function(){
+        var stamp = {
+            y: 1,
+            m: 1,
+            d: 1,
+            yyyy: 1,
+            mm: 1,
+            dd: 1,
+            unix: 1,
+            iso: 1,
+            human: 1
+        };
+        expect(raw(stamp)).to.deep.equal(stamp);
+    });
+    it('should parse {y: 16, m: 5, d: 20} as ', function(){
+        var stamp = {
+            y: 16,
+            m: 5,
+            d: 20,
+        };
+        console.log(parse.date.identify(stamp));
+        expect(raw(stamp)).to.deep.equal(stamp);
+    });
+    it('should parse 5-20-16 as ', function(){
+        var stamp = {
+            iso: '5-20-2016'
+        };
+        console.log(parse.date.identify(stamp));
+        expect(raw(stamp)).to.deep.equal(stamp);
+    });
+
 
 });
 
