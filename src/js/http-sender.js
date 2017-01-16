@@ -14,7 +14,7 @@ $('#send').click(function(e){
     var server = $val('address');
     var path   = $val('path');
     var method = $val('method');
-    var body = JSON.parse($val('body'));
+    var body = {jquery: JSON.parse($val('body') || "\"\"")};
 
     var url = server+path;
     var jax = $.ajax({
