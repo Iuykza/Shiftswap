@@ -146,69 +146,40 @@ exports.schedule = {
         console.log('POST schedule');
         var post = req.body || {};
 
-        if(Array.isArray(post.body)){
-            return db.schedule.insert(post.body, callbackSave);
-        };
-
-        if(!post.time || !post.uid || !post.date || !post.access)
-            return res.status(400).send('Body must include uid, date, access, and time.');
-        if(!Array.isArray(post.time))
-            return res.status(400).send('time must be an array');
-        if(typeof post.uid != 'number')
-            return res.status(400).send('uid must be a number');
-        if(post.detail && typeof post.uid != 'string')
-            return res.status(400).send('detail must be a string');
-        if(post.access != 'm' && post.access != 'f')
-            return res.status(400).send('access must be a string either m or f, for manager and floor');
-
-        db.schedule.insert({
-            uid:    post.uid,
-            time:   post.time,
-            detail: post.type,
-            date:   post.date,
-            access: getAccess(post.type),
-        }, callbackSave);
-
-        function getAccess(type){
-            type = typeof type==='string'? type : '';
-            if(type.includes('manager')) return 'm';
-            return 'f';
+        if(post.jquery){
+            post = post.jquery;
         }
-
-        function callbackSave(err, doc){
+        
+        db.schedule.insert(post, (err, doc)=>{
             if(err){
                 console.error(err);
-                return res.send(err);
+                return res.send(JSON.stringify(err));
             }
 
             res.send(JSON.stringify('saved'));
-        };
+        });
     },
     userid: (req, res)=>{
-
+        
     },
     get: (req, res)=>{
         var day = req.params.day; 
         var uid = req.params.uid;
         var access = req.params.access;
 
-        if(day === undefined || day === ''){
+        var find;
+
+        if(!day){
             //No day selected, send full list.
             console.log('day empty');
             find = {};
         }
         else{
             //Day found, send partial.
-            if(day){
-                console.log('GET schedule',day.human, day.unix);
-                find = {'date.unix': day.unix};
-            }else{
-                console.log('GET schedule default');
-            }
-            
+            console.log('GET schedule',day.human, day.unix);
+            find = {'date.unix': day.unix};            
         }
 
-        var find = {};
         if(!day)
             day = parse.date.unixToday();
         if(uid)
