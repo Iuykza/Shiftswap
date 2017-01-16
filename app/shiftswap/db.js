@@ -4,6 +4,7 @@
 var exports = module.exports = {};
 
 var parse = require("app/shiftswap/parse"),
+_         = require("lodash"),
 schema = require("app/shiftswap/schema"),
 serverConfig = require('app/_config/server.json')
 ;
@@ -30,12 +31,11 @@ exports.schedule = {
         if(end < 0){
             var secondsInDay = 60 * 60 * 24;
             end = Number(start) + Number(secondsInDay*Math.abs(end));
-            end = String(end);
+            end = Number(end);
         }
 
-        query = {$and: [
-            {'date.unix': {$gte: start}},
-            {'date.unix': {$lte: end}},
+        query = { $and: [
+            {'date.unix': {$gte: start, $lte: end}},
             get,
         ]};
 
@@ -51,11 +51,55 @@ exports.schedule = {
     getFloor:   (start, end, callback)=>     { getAll(start, end, {access: 'f'}, callback) },
     getManager: (start, end, callback)=>     { getAll(start, end, {access: 'm'}, callback) },
     getByUID:   (start, end, uid, callback)=>{ getAll(start, end, {uid: uid   }, callback) },
-    insert: (data,callback)=>{
-        new model.Schedule(data).save(()=>{
-            if(callback)
-                callback();
-        });
+    insert: (datas,callback)=>{
+        var errors = [];
+
+        if(!Array.isArray(datas)){
+            datas = [datas];
+        }
+        for(var i=datas.length; i--;){
+            var data = datas[i];
+            console.log(data);
+
+            if(!data.time || !data.uid || !data.date || !data.access)
+                return callback('Body must include uid, date, access, and time.');
+            if(!Array.isArray(data.time))
+                return callback('time must be an array');
+            if(typeof data.uid != 'number' && typeof data.uid != 'string')
+                return callback('uid must be a number');
+            if(data.detail && typeof data.uid != 'string')
+                return callback('detail must be a string');
+            if(data.access != 'm' && data.access != 'f')
+                return callback('access must be a string either m or f, for manager and floor');
+
+            datas[i].date = parse.date.convertToRaw(data.date);
+            datas[i].uid = Number(data.uid);
+
+            var time = [];
+            datas[i].time.forEach(function(stamp){
+                time.push(parse.time(stamp));
+            });
+            datas[i].time = _.sortBy(time, a=>a);
+
+            if(datas[i].time.length % 2 === 1)
+                return callback('time must contain an even number of timestamps');
+
+            model.Schedule.findOne({'date':data.date}, function(err, docs){
+                if(!docs){
+                    new model.Schedule(data).save((err, docs)=>{
+                        if(err)
+                            errors.push(err);
+                    });
+                }else{
+                    errors.push('schedule already exists for this day: '+ data.date.human);
+                }
+            });
+            
+        }//end for
+
+        console.log(errors);
+        return callback(errors.join('\r\n'));
+
     },
     replaceSection: (uid, data, callback)=>{
         if(!Array.isArray(data)){
@@ -85,9 +129,13 @@ exports.schedule = {
 
 
         /*** 2. Delete data within timespan ***/
-        var query = { $and: [
+        /*var query = { $and: [
             {'date.unix': {$gte: low}},
             {'date.unix': {$lte: high}},
+            {'uid': uid},
+        ]};*/
+        var query = { $and: [
+            {'date.unix': {$gte: low, $lte: high}},
             {'uid': uid},
         ]};
 
