@@ -187,7 +187,7 @@ exports.schedule = {
         if(access)
             find.access = access[0];
 
-        db.schedule.find(day, -7, find, function(err, docs){
+        db.schedule.getBetweenDates(day, -7, find, function(err, docs){
             var list = [];
 
             if(err)
