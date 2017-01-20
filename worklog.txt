@@ -1,3 +1,153 @@
+[Josh @ 2017-01-20 01:54:48] 
+
+TODO: something broke how times get saved to the database.  Seeing standard time instead of military times.  This makes weird messages output to the SMS frontend:
+
+"You work Invalid Invalid date from NaN:30pm to 12::0 as concession. This is Invalid date."
+
+
+[Josh @ 2017-01-20 00:55:30] 
+
+Wrote up a script that scrapes directly from the Cinemark website for movies times.
+
+Got output like this:
+
+[{
+   "times": ["1:50pm", "10:20pm", "12:25pm", "6:05pm", "11:00am", "4:40pm", "7:30pm", "3:15pm", "8:55pm"],
+   "title": "XXX: The Return of Xander Cage"
+}, {
+   "times": ["10:40am", "1:40pm", "4:40pm", "7:40pm", "10:40pm"],
+   "title": "Split"
+}, {
+   "times": ["12:40pm", "3:50pm", "7:15pm", "10:25pm"],
+   "title": "La La Land"
+}, {
+   "times": ["12:50pm", "4:00pm", "7:10pm", "10:15pm"],
+   "title": "Hidden Figures"
+}, {
+   "times": ["10:30am", "1:10pm", "3:55pm", "6:40pm", "9:30pm"],
+   "title": "Sing"
+}]
+
+Any changes to the website layout will break this script.
+
+
+
+
+
+
+[Josh @ 2017-01-19 22:15:07] 
+
+Learning about Nightmarejs.  It's a library written on top of Phantomjs, so it does everything Phantom can do with the additional benefit of:
+
+- Seeing an actual browser window run through the commands
+- Runs in Node
+- Requires less code and function nesting mess
+
+
+https://www.youtube.com/watch?v=lww3DlZseF4
+
+
+[Josh @ 2017-01-19 19:54:54] 
+
+Documenting API on the webpage
+
+https://en.wikipedia.org/wiki/Date_format_by_country
+
+
+[Josh @ 2017-01-19 08:44:00] 
+
+TODO: parse.sms.trunicate
+Splits a string into 160 character max strings.
+
+ Breaks are preferred:
+  1. At the end of sentences
+  2. If not end of words
+  3. Finally split by char
+
+Alternate lengths: 160, 153, 140 chars.
+  160 is the maximum limit.
+  153 is the defaulted length when a text exceeds 160.
+  140 is the length Twitter uses because 20 chars are used for the user address so,
+      (160 limit - 20 ua = 140 message)
+
+http://www.adweek.com/socialtimes/the-reason-for-the-160-character-text-message-and-140-character-twitter-length-limits/4914
+
+
+[Josh @ 2017-01-18 01:24:48] 
+
+Fixed a bug with dates getting returned out of order
+Fixed a bug with midnight 0000 being stored incorrectly
+Fixed shifts getting duplicated 
+
+Military times shouldn't be limited between 0000 and 2359.  Instead it should go beyond the 24th hour.  Maybe use 0000 to 3600.  This allows day after plus time.  Some shifts will span across the border of two days.
+
+Also, technically day + 0000 midnight time would be the next day over.
+
+FT-REQ:
+
+SMS Broad command.  Gets a broad overview of your schedule for the next 6 days.
+
+Example send:
+Today, Wed Jan 18 you work. Thu, Fri, and Sat you are off.  Mon you work, and Tue are off.
+
+Pseudocode:
+`Today {day} {mmm ddth} you {work|are off}.`
+while(6 days)
+    if(today)
+        str = `today` + str
+    
+
+    while(nextDay.work === today.work)
+        daysLong add nextDay;
+        nextDay++
+
+    str = {daysLong} + you `{work|are off}.`
+
+
+
+TODO:
+Force HTTP to HTTPS http://stackoverflow.com/a/23894573/4147786
+
+
+
+
+[Josh @ 2017-01-18 00:07:05] 
+
+Fix for Ethos.  It couldn't send ajax from an HTTPS source to HTTP.  I will need to make my EC2 server accessible from HTTPS.
+
+Fixed POST schedule and db.schedule.insert
+  Callback functions weren't playing nicely with the for loop.  So I had to use functional closures:
+
+
+  Don't do this:
+
+  for(datas){
+    data logic
+    callbacks
+  }
+
+
+  Do this instead:
+
+  for(datas){
+    function(data){
+      data logic
+      callbacks
+    }
+  }
+
+TODO:
+  Make Ethos exit quietly when finished ajax
+  Avoid duplicating shifts
+
+[Josh @ 2017-01-15 23:01:06] 
+
+Added parse.schedule.pretty
+
+Sent a real schedule to my phone number.  It's starting to look like the end product now.  I'm very excited about this.
+
+TODO: I need a way to deal with timezones.  Right now everything is saved and parsed as UTC.  So when I ask it about my shift for today, it gives me today's shift, up until 6:00pm.  Once the clock hits that, UTC time is Jan 16th 12:00am while Central is Jan 15th 6:00pm.
+
 [Josh @ 2017-01-15 00:49:17] 
 
 Fixed Schedule.post
