@@ -318,11 +318,11 @@ exports.sms = {
         var sent = sms.parseIncoming(req, res, db, parse, {
             number: number,
             body: body,
+        }, function(err, send){
+            console.log(`Num: ${number}, Recv: ${body}, Send: ${send}`);
+            res.set('Content-Type','text/plain'); //https://www.twilio.com/docs/api/twiml/sms/your_response
+            res.status(200).send(send);
         });
-        console.log(`Num: ${number}, Recv: ${body}, Send: ${sent}`);
-        
-
-        res.sendStatus(200);
     },
     send: (req, res)=>{
         console.log('GET sms');
