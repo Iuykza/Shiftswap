@@ -8,7 +8,7 @@ _          = require('lodash'),
 pad        = require('pad')
 ;
 
-const TIMEZONE_OFFSET_SECS = 21600;
+const TIMEZONE_OFFSET_SECS = -21600;
 
 
 exports.json = {
@@ -253,7 +253,9 @@ exports.date = {
     },
     unixToday: function(){
         var today = new Date();
-        return exports.date.makeUTC(today.getUTCFullYear(), today.getUTCMonth()+1, today.getUTCDate());
+        today = exports.date.makeUTC(today.getUTCFullYear(), today.getUTCMonth()+1, today.getUTCDate());
+        console.log('today',today);
+        return today;
     },
     stringAmerican: function(month, day, year){
         return pad(2,month,'0')+'-'+pad(2,day,'0')+'-'+pad(4,year,new Date().getUTCFullYear());
@@ -509,6 +511,10 @@ exports.military = {
             hour = hour % 12;
             console.log(hour);
         }
+        //change 0000 into 12am
+        if(hour === 0){
+            hour = 12;
+        }
 
         if(shorten && min === '00'){
             return `${hour}${suffix}`;
@@ -520,16 +526,19 @@ exports.military = {
 };
 exports.schedule = {
     pretty: function(sched, enableLong){
-        if(objectIsEmpty(sched)){
+        if(!sched || objectIsEmpty(sched)){
             return false;
         }
 
-        var m = moment((sched.date.unix + TIMEZONE_OFFSET_SECS)*1000);
+        var start = sched.time[0];
+        var startMinutes = Number(start[0] + start[1])*60 + Number(start[2] + start[3]);
+
+        var m = moment((sched.date.unix - TIMEZONE_OFFSET_SECS + (Number(startMinutes)*60) )*1000);
         var stdTime = exports.military.toStandard;
 
         var prettyStart  = stdTime(sched.time[0],true);
         var prettyEnd    = stdTime(sched.time[sched.time.length-1],true,false);
-        var prettyDate   = m.calendar().split(' ')[0] +' '+ m.format('MMMM Do');
+        var prettyDate   = m.calendar().split(' ')[0] +' '+ m.format('MMM Do');
         var prettyDetail = sched.detail[0];
 
         var fromNow = m.fromNow();
