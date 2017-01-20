@@ -11,30 +11,38 @@ config = require("app/_config/twilio.json"),
 twilio  = require('twilio')(config.id, config.token)
 ;
 
+const TIMEZONE_OFFSET_SECS = -6 * (60*60);
+const SECONDS_IN_DAY = 60*60*24;
 
-exports.parseIncoming = (req, res, db, parse, get)=>{
+
+exports.parseIncoming = (req, res, db, parse, get, callback)=>{
     get = get || {};
 
     var number = get.number;
 
-    db.users.getByPhone(number, callbackUID);
-    function callbackUID(err, uid){
+    db.users.getByPhone(number.substr(-10), callbackUID);
+    
+    function callbackUID(err, docs){
+        var user = docs[0];
+        console.log(user.name);
         if(err){
             return console.error(err);
         }
-
-        var body     = S(get.body).toLowerCase().collapseWhitespace().s;
-        var found  = false;
-
-        if(!uid){
-            return exports.send(number, 'Who are you?  Reply back with "This is ..."');
+        if(!user){
+            //no user associated with number
+            return callback(false, 'Who are you?  Reply back with This is ...');
         }
+
+        var uid = user.uid;
+        var body = S(get.body).toLowerCase().collapseWhitespace().s;
+
+
 
         var commands = [
             {
                 name:'echo',
                 f: ()=>{
-                    exports.send(number, body);
+                    callback(false, body);
                 },
             },
             {
@@ -47,22 +55,50 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
                         unix:    m.valueOf(),
                         iso8601: m.toISOString(),
                     });
-                    exports.send(number, body);
+                    callback(false, body);
                 },  
             },
             {
+                name:'ereyesterday',
+                alias:['nudiustertian'],
+                f: ()=>scheduleByDates(-2, false, false),
+            },
+            {
+                name:'yesterday',
+                f: ()=>scheduleByDates(-1, false, false),
+            },
+            {
                 name:'today',
-                alias:['now'],
-                f: ()=>{
-                    //First get schedule by UID
-                    var today = parse.date.unixToday();
-                    db.schedule.getByUID(today, today, uid, function(err, schedule){
+                alias:['now','t'],
+                f: ()=>scheduleByDates(false, false, false),
+            },
+            {
+                name:'tomorrow',
+                alias: ['tt'],
+                f: ()=>scheduleByDates(1, false, false),
+            },
+            {
+                name:'overmorrow',
+                f: ()=>scheduleByDates(2, false, false),
+            },
+            {
+                name:'next',
+                f: (params)=>{
+                    var date = parseInt(new Date().valueOf()/1000) + TIMEZONE_OFFSET_SECS;
+                    db.schedule.find({uid: uid, 'date.unix': {$gte:date-60*60*24}}, function(err, schedule){
+
                         if(err)
                             return console.error(err);
 
-                        schedule = schedule[0]; //grab only the first schedule
+                        if(schedule.length === 0)
+                            return callback(false, 'You are off');
+
+                        var skip = (params[0] || 1) - 1;
+                        console.log('skip', skip);
+                        schedule = schedule[skip];
+
                         body = parse.schedule.pretty(schedule); //make it pretty
-                        exports.send(number, body); //text it
+                        callback(false, body);
                     });
                 },
             },
@@ -93,8 +129,38 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
                 },
             }
         ];
+        function scheduleByDates(DayOffset, countOffset, uidDiff){
+            uid = uidDiff || uid;
+            if(countOffset === undefined || countOffset === false){
+                countOffset = 0;
+            }
+            if(DayOffset === undefined || DayOffset === false){
+                DayOffset = 0;
+            }
+
+            
+
+            var date = parseInt(new Date().valueOf()/1000) + TIMEZONE_OFFSET_SECS + DayOffset * SECONDS_IN_DAY;
+
+            db.schedule.getByDateAndUID(date-SECONDS_IN_DAY, date, uid, function(err, schedule){
+
+                if(err)
+                    return console.error(err);
+
+                if(schedule.length === 0)
+                    return callback(false, 'You are off');
+
+                schedule = schedule[countOffset]; //grab only the first schedule
+
+                body = parse.schedule.pretty(schedule); //make it pretty
+                callback(false, body);
+            });
+        };
+
 
         //Match their text to the list of commands above
+        var found  = false;
+
         for(var i=commands.length; i--;){
             var command = commands[i];
             if(S(body).contains(command.name)){
@@ -105,12 +171,12 @@ exports.parseIncoming = (req, res, db, parse, get)=>{
             }
         }
         if(found){
-            return body;
+            return;
         }
 
         //Reaching this point means nothing matched
-        body = "Sorry didn't understand that.  For a list of commands type help.  For help on a specific command type the command and help.";
-        exports.send(number, body);
+        body = "Didn't understand that command.  Need commands?  Type help.";
+        callback(false, body);
     }
 
 };
