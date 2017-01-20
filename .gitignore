@@ -5,5 +5,8 @@ node_modules/*
 
 !node_modules/shiftswap
 
+headless/*.txt
+headless/*.png
+
 ftpsync.settings
 desktop.ini
