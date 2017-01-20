@@ -12,10 +12,18 @@ serverConfig = require('app/_config/server.json')
 var model = schema.model;
 
 exports.schedule = {
-    find: (start, end, get, callback)=>{
-        get   = get || {};
-        start = parse.date.unix(start);
-        end   = parse.date.unix(end  );
+    find: (query, callback)=>{
+        console.log('schedule.find', query);
+        model.Schedule
+        .find(query)
+        .sort({'date.unix': 1, uid: 1})
+        .exec(function(err, data){
+            if(callback){
+                callback(err, data);
+            }
+        });
+    },
+    getBetweenDates: (start, end, get, callback)=>{
 
         //default start to today
         if(!start){
@@ -42,15 +50,14 @@ exports.schedule = {
         console.log(JSON.stringify(query));
 
         model.Schedule.find(query, function(err, data){
-            console.log(data, callback);
             if(callback){
                 callback(err, data);
             }
         });
     },
-    getFloor:   (start, end, callback)=>     { getAll(start, end, {access: 'f'}, callback) },
-    getManager: (start, end, callback)=>     { getAll(start, end, {access: 'm'}, callback) },
-    getByUID:   (start, end, uid, callback)=>{ getAll(start, end, {uid: uid   }, callback) },
+    getByDateAndFloor:   (start, end, callback)=>     { exports.schedule.getBetweenDates(start, end, {access: 'f'}, callback) },
+    getByDateAndManager: (start, end, callback)=>     { exports.schedule.getBetweenDates(start, end, {access: 'm'}, callback) },
+    getByDateAndUID:   (start, end, uid, callback)=>{ exports.schedule.getBetweenDates(start, end, {uid: uid   }, callback) },
     insert: (datas,callback)=>{
         var errors = [];
 
