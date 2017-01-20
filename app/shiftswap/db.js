@@ -59,8 +59,10 @@ exports.schedule = {
         }
         for(var i=datas.length; i--;){
             var data = datas[i];
-            console.log(data);
+            insertOne(data);
+        }//end for
 
+        function insertOne(data){
             if(!data.time || !data.uid || !data.date || !data.access)
                 return callback('Body must include uid, date, access, and time.');
             if(!Array.isArray(data.time))
@@ -72,30 +74,36 @@ exports.schedule = {
             if(data.access != 'm' && data.access != 'f')
                 return callback('access must be a string either m or f, for manager and floor');
 
-            datas[i].date = parse.date.convertToRaw(data.date);
-            datas[i].uid = Number(data.uid);
+            data.date = parse.date.convertToRaw(data.date);
+            data.uid = Number(data.uid);
 
             var time = [];
-            datas[i].time.forEach(function(stamp){
+            data.time.forEach(function(stamp){
                 time.push(parse.time(stamp));
             });
-            datas[i].time = _.sortBy(time, a=>a);
+            data.time = time;
 
-            if(datas[i].time.length % 2 === 1)
+            if(data.time.length % 2 === 1)
                 return callback('time must contain an even number of timestamps');
 
-            model.Schedule.findOne({'date':data.date}, function(err, docs){
-                if(!docs){
-                    new model.Schedule(data).save((err, docs)=>{
-                        if(err)
-                            errors.push(err);
-                    });
-                }else{
-                    errors.push('schedule already exists for this day: '+ data.date.human);
+            console.log('find by date', JSON.stringify({'date.unix':data.date.unix, uid: data.uid}));
+            model.Schedule.findOneAndUpdate({'date.unix':data.date.unix, uid: data.uid}, data, function(err, docs){
+                if(err){
+                    errors.push(err);
+                    return console.error(err);
                 }
+                
+                console.log('found?', !!docs);
+
+                if(docs){
+                    return console.log('already found', docs.date.human);
+                }
+                new model.Schedule(data).save((err)=>{
+                    if(err)
+                        console.error(err);
+                });
             });
-            
-        }//end for
+        }//end function
 
         console.log(errors);
         return callback(errors.join('\r\n'));
