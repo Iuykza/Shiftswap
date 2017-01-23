@@ -1,3 +1,47 @@
+[Josh @ 2017-01-22 18:43:56] 
+
+Fixed the sms.next command
+Added routes.sms.test which simulates an outgoing/incoming text message
+
+TODO: Need to get back into learning AngularJS so I can rebuild the frontend to work with all the changes I've made to the backend.
+
+
+[Josh @ 2017-01-21 03:52:02] 
+
+Wrote up a script to scrape EC2 server costs and the graph.
+
+
+[Josh @ 2017-01-20 03:46:26] 
+
+Fixed incorrect time saves
+
+
+jQuery cheats:
+
+Traversing Up
+  $.parent(selector) //up one level
+  $.parentsUntil(selector) //up multiple levels
+
+Traversing Down
+  $.children(selector) //one level
+  $.find(selector)     //multiple levels
+
+https://api.jquery.com/find/
+
+
+
+If Kronos is installed locally at the theatre there may be an issue sending requests.  But I'm assuming more than likely Kronos is served offsite, since I'm able to get my schedule from Backstage while at home.
+
+Given the chance that is it local, I know there is outside internet access allowed as I've seen managers browse webpages and send emails.  I could set up a Rasberry PI on the local network and have it forward requests to the Kronos server.  I don't have any experience with Rasberry, but from reading a quick start guide, it requires the same amount of setup as any other computer, with the addition of installing their OS "Raspbian".
+
+Also because Raspberry is extensible, an SMS shield could be added to it.  This would give an extra method to checking server status.
+
+Probably a good idea to talk with IT about this before doing anything on my own.
+
+https://www.raspberrypi.org/wp-content/uploads/2012/04/quick-start-guide-v2_1.pdf
+
+
+
 [Josh @ 2017-01-20 01:54:48] 
 
 TODO: something broke how times get saved to the database.  Seeing standard time instead of military times.  This makes weird messages output to the SMS frontend:
@@ -336,7 +380,7 @@ TodayAsRaw
 WorkWeekStart
 identify
 
-raw = {y, m, d, yyyy, mm, dd, unix, iso, human};  q
+raw = {y, m, d, yyyy, mm, dd, unix, iso, human};  
 
 
 
