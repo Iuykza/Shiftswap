@@ -73,5 +73,6 @@ app.get ('/'                                             , home.welcome)    // s
 .post   ('/'+VERSION+'/reward(s)?/admin'                 , reward.edit)     // edit the stash (admin)
 
 .get    ('/'+VERSION+'/sms/send/:number/:msg'            , sms.send)        // send sms
-.post    ('/'+VERSION+'/sms/poll'                         , sms.poll)        // receive sms
+.get    ('/'+VERSION+'/sms/poll/test/:number/:msg'       , sms.test)        // receive sms (test)
+.post   ('/'+VERSION+'/sms/poll'                         , sms.poll)        // receive sms
 ;

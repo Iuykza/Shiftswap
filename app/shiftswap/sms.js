@@ -85,7 +85,7 @@ exports.parseIncoming = (req, res, db, parse, get, callback)=>{
                 name:'next',
                 f: (params)=>{
                     var date = parseInt(new Date().valueOf()/1000) + TIMEZONE_OFFSET_SECS;
-                    db.schedule.find({uid: uid, 'date.unix': {$gte:date-60*60*24}}, function(err, schedule){
+                    db.schedule.find({uid: uid, 'date.unix': {$gte:date/*-(60*60*24)*/}}, function(err, schedule){
 
                         if(err)
                             return console.error(err);
@@ -93,8 +93,10 @@ exports.parseIncoming = (req, res, db, parse, get, callback)=>{
                         if(schedule.length === 0)
                             return callback(false, 'You are off');
 
-                        var skip = (params[0] || 1) - 1;
-                        console.log('skip', skip);
+                        var skip = Number(params[1]);
+                        if(Number.isNaN(skip)){
+                            skip = 0;
+                        }
                         schedule = schedule[skip];
 
                         body = parse.schedule.pretty(schedule); //make it pretty
@@ -164,7 +166,7 @@ exports.parseIncoming = (req, res, db, parse, get, callback)=>{
         for(var i=commands.length; i--;){
             var command = commands[i];
             if(S(body).contains(command.name)){
-                body = S(body).chompLeft(command.name+' ').s;
+                //body = S(body).chompLeft(command.name+' ').s;
                 params = body.split(' ');
                 command.f(params);
                 found = true;

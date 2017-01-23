@@ -1,5 +1,6 @@
 
 var nightmare = require('nightmare')({'show':true});
+var fs = require('fs');
 
 nightmare
 .goto('https://www.cinemark.com/louisiana/cinemark-lake-charles-and-xd')
@@ -34,7 +35,7 @@ nightmare
 
     function jumpByTime(movie){
         var $theatreType = $(this).children('.row');  //Split by type such as XD, 3D, standard
-        var $button = $theatreType.children('.showtime').children('a'); //Get the buttons on each of these rows
+        var $button = $theatreType.find('.showtime a'); //Get the buttons on each of these rows
 
         $button.eachWith(movie, jumpByButton);
     }
@@ -50,5 +51,20 @@ nightmare
 })//end evaluate
 .end()
 .then(function(movies){
-    console.log(JSON.stringify(movies));
+    movies = JSON.stringify(movies);
+    console.log(movies);
+
+    fs.writeFileSync('testOutput.json', JSON.stringify(movies));
+    console.log('done');
+
+    fs.writeFileSync('movieshowtimes.txt',movies);
+    fs.writeFile('movieshowtimes-async.txt',movies, function(err){
+        if(err)
+            throw err;
+
+        console.log('successful save');
+    });
+})
+.catch(function(err){
+    console.log(err);
 });

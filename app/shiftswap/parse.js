@@ -527,7 +527,7 @@ exports.military = {
 exports.schedule = {
     pretty: function(sched, enableLong){
         if(!sched || objectIsEmpty(sched)){
-            return false;
+            return "No data beyond this point.";
         }
 
         var start = sched.time[0];

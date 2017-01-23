@@ -324,6 +324,13 @@ exports.sms = {
             res.status(200).send(send);
         });
     },
+    test: (req, res)=>{
+        console.log('POST sms (test)');
+        req.body.From = req.params.number;
+        req.body.Body = req.params.msg;
+
+        exports.sms.poll(req,res);
+    },
     send: (req, res)=>{
         console.log('GET sms');
         var body   = req.params.msg;
